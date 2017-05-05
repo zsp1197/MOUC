@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!--
+     Copyright 2007 (C) IIT. All Rights Reserved.
+
+     Author: Jiachun GUO      
+-->
+
+<!--<root>-->
+    <!--<constraint>-->
+        <!--<timeinterval>0</timeinterval>-->
+        <!--<a>0.666667,0.333333,0</a>-->
+        <!--<b>310</b>-->
+        <!--&lt;!&ndash;<mu>0</mu>&ndash;&gt;-->
+        <!--&lt;!&ndash;<mu_plus>0.05</mu_plus>&ndash;&gt;-->
+        <!--&lt;!&ndash;<mu_minus>0.01</mu_minus>&ndash;&gt;-->
+    <!--</constraint>-->
+    <!--<constraint>-->
+        <!--<timeinterval>0</timeinterval>-->
+        <!--<a>-0.666667,-0.333333,0</a>-->
+        <!--<b>310</b>-->
+    <!--</constraint>-->
+    <!--<constraint>-->
+        <!--<timeinterval>1</timeinterval>-->
+        <!--<a>0.666667,0.333333,0</a>-->
+        <!--<b>310</b>-->
+    <!--</constraint>-->
+    <!--<constraint>-->
+        <!--<timeinterval>1</timeinterval>-->
+        <!--<a>-0.666667,-0.333333,0</a>-->
+        <!--<b>310</b>-->
+    <!--</constraint>-->
+    <!--<constraint>-->
+        <!--<timeinterval>2</timeinterval>-->
+        <!--<a>0.666667,0.333333,0</a>-->
+        <!--<b>310</b>-->
+    <!--</constraint>-->
+    <!--<constraint>-->
+        <!--<timeinterval>2</timeinterval>-->
+        <!--<a>-0.666667,-0.333333,0</a>-->
+        <!--<b>310</b>-->
+    <!--</constraint>-->
+<!--</root>-->

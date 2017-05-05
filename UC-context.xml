@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2007, IIT. All Rights Reserved.
+  ~ @author Jiachun GUO (jguo9@iit.edu)
+  ~ @version 1.0
+  -->
+
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN"
+        "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+    <bean id="economicDispatchAlg" class="sjtu.scuc.academic.EconomicDispatch1HourCplex">
+    <!--<bean id="economicDispatchAlg" claEconomicDispatch1HourPiecewisewise">-->
+    <!--<bean id="economicDispatchAlg" claEconomicDispatch1HourNewtonwton">-->
+        <property name="gapTolerance"><value>0.0001</value></property>
+        <property name="penaltyCost"><value>100000</value></property>
+    </bean>
+
+    <!--<bean id="scucAlg" claMIPAlgPAlg">-->
+    <bean id="scucAlg" class="sjtu.scuc.academic.LagrangianAlg">
+        <property name="edAlg"><ref bean="economicDispatchAlg"/></property>
+        <property name="gapTolerance"><value>0.005</value></property>
+        <property name="maxIteration"><value>1000</value></property>
+        <property name="outputDetail"><value>true</value></property>
+    </bean>
+
+    <bean id="scucSolver" class="sjtu.scuc.academic.SCUCSolver">
+        <property name="scucAlg"><ref bean="scucAlg"/></property>
+    </bean>
+
+    <bean id="scucData" class="sjtu.scuc.academic.SCUCData"/>
+
+    <bean id="inputFileConfigure" class="sjtu.scuc.academic.InputFileConfigure">
+        <property name="scucData"><ref bean="scucData"/></property>
+        <property name="scucAlg"><ref bean="scucAlg"/></property>
+        <property name="loadFile"><value>Loads.xml</value></property>
+        <!--<property name="generatorFile"><value>GeneratorsPiecewiseCostCurve2.xml</value></property>-->
+        <property name="generatorFile"><value>Generators.xml</value></property>
+        <!--<property name="generatorFile"><value>GeneratorsPiecewiseCostCurve.xml</value></property>-->
+        <!--<property name="generatorFile"><value>GeneratorsQuadraticCostCurve.xml</value></property>-->
+        <!--<property name="leqConstraintFile"><value>LeqConstraints.xml</value></property>-->
+    </bean>
+
+</beans>

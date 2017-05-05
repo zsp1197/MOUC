@@ -1,0 +1,82 @@
+<?xml version="1.0"?>
+<project name="SCUC" default="run" basedir=".">
+
+    <property name="jar.name" value="scuc.jar"/>
+    <property name="lib.dir" value="lib"/>
+    <property name="src.dir" value="src"/>
+    <property name="class.dir" value="classes"/>
+    <property name="test.class.dir" value="test/classes"/>
+
+    <path id="scuc.class.path">
+        <dirset dir="${basedir}"/>
+        <fileset dir="${lib.dir}">
+            <include name="*.jar"/>
+        </fileset>
+    </path>
+
+    <target name="init">
+        <mkdir dir="${class.dir}"/>
+        <mkdir dir="${test.class.dir}"/>
+    </target>
+
+    <target name="clean" description="Erases contents of classes dir">
+        <delete dir="${class.dir}"/>
+        <delete dir="${test.class.dir}"/>
+        <delete dir="test"/>
+        <delete>
+            <fileset dir="${basedir}" includes="*.log"/>
+        </delete>
+    </target>
+
+    <target name="compile" depends="init" description="Compiles all source code">
+        <javac destdir="${class.dir}" classpathref="scuc.class.path" debug="no">
+            <src path="${src.dir}"/>
+            <include name="**/*.java"/>
+            <exclude name="**/*Test*"/>
+        </javac>
+        <copy todir="${class.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*.xml"/>
+                <include name="**/*.properties"/>
+                <exclude name="**/*Test*"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="jar" depends="compile">
+        <jar destfile="${lib.dir}/${jar.name}" basedir="${class.dir}"/>
+    </target>
+
+    <target name="compile.test" depends="jar" description="Compiles all unit test source">
+        <javac destdir="${test.class.dir}" classpathref="scuc.class.path" debug="no">
+            <src path="${src.dir}"/>
+            <include name="**/*Test*.java"/>
+            <include name="**/*Test*/*.java"/>
+        </javac>
+        <copy todir="${class.dir}">
+            <fileset dir="${src.dir}">
+                <include name="**/*Test*/*.xml"/>
+                <include name="**/*Test*/*.properties"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="test" depends="compile.test" description="Runs the unit tests">
+        <junit printsummary="withOutAndErr" haltonfailure="no" haltonerror="no" fork="yes">
+            <classpath refid="scuc.class.path"/>
+            <formatter type="xml" usefile="true"/>
+            <batchtest todir="${test.class.dir}">
+                <fileset dir="${test.class.dir}">
+                    <include name="edu\iit\ece\power\uc\test\AllTest.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+    <target name="run" depends="jar">
+        <java classname="Main" fork="true" maxmemory="512m">
+            <classpath refid="scuc.class.path"/>
+        </java>
+    </target>
+
+</project>
