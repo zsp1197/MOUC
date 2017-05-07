@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public class MOUCSingleUnitDP {
 
-    protected static Log log = LogFactory.getLog(SingleUnitDP.class);
+    protected static Log log = LogFactory.getLog(MOUCSingleUnitDP.class);
 //    private final int penaltyCost = 10000;
 
     private double[] genOut = null;
@@ -29,7 +29,7 @@ public class MOUCSingleUnitDP {
     private GRBVar[] y;
     private GRBVar[] z;
 
-    public int[] solve(Generator[] gens, int gen_indx, double[] lambda, double[] mu, Map<Integer, List<LeqConstraint>> ti_constraints_map) {
+    public void solve(Generator[] gens, int gen_indx, double[] lambda, double[] mu, Map<Integer, List<LeqConstraint>> ti_constraints_map) {
         GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) gens[gen_indx];
         final int no_of_ti = lambda.length;
         genOut=new double[no_of_ti];
@@ -43,10 +43,11 @@ public class MOUCSingleUnitDP {
             gurobimodel.update();
             gurobimodel.optimize();
             getResult(no_of_ti);
+            gurobimodel.dispose();
+            env.dispose();
         } catch (GRBException e) {
             e.printStackTrace();
         }
-        return genStatus;
     }
 
     private void getResult(int no_of_ti) throws GRBException {
@@ -59,10 +60,8 @@ public class MOUCSingleUnitDP {
     }
 
     private void addCostDef(int no_of_ti, GeneratorWithQuadraticCostCurve gen) {
-        final double StattCost = gen.getStartupCost();
         GRBQuadExpr expr = new GRBQuadExpr();
         for (int t = 0; t < no_of_ti; t++) {
-//            leave alone the copnstant term, may cause confusion in caculating gap or the obj value
             expr.addTerm(gen.getAQuadratic(), p[t], p[t]);
             expr.addTerm(gen.getALinear(), p[t]);
             expr.addTerm(gen.getAConstant(), u[t]);
@@ -177,8 +176,9 @@ public class MOUCSingleUnitDP {
 
     private void addObj(int no_of_ti, double[] lambda, double[] mu, GeneratorWithQuadraticCostCurve gen) {
         GRBQuadExpr expr = new GRBQuadExpr();
-        expr.addTerm(1.0, f1, f1);
-        expr.addTerm(1.0, f2, f2);
+//        expr.addTerm(1.0, f1, f1);
+//        expr.addTerm(1.0, f2, f2);
+        expr.addTerm(1.0, f1);
         for (int t = 0; t < no_of_ti; t++) {
             expr.addTerm(-lambda[t], p[t]);
             expr.addTerm(-mu[t] * gen.getMaxP(), u[t]);

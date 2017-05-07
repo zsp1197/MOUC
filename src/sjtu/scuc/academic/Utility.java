@@ -1,10 +1,14 @@
 package sjtu.scuc.academic;
+
 import Jama.Matrix;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 /**
  * Created by Zhai Shaopeng on 2017/5/4.
  * E-mail: zsp1197@sjtu.edu.cn
@@ -24,6 +28,43 @@ public class Utility {
             }
         }
         return genCost;
+    }
+
+    public static double getGenGasCost(Generator gen, final int[] genStatus, final double[] genOut) {
+        if(gen instanceof GeneratorWithQuadraticCostCurve){
+        }
+        else {
+            System.out.println("zhai: Warning, gas cost is not defined!");
+            return 0;
+        }
+        GeneratorWithQuadraticCostCurve genq=(GeneratorWithQuadraticCostCurve) gen;
+        double genGasCost = 0;
+        for (int t = 0; t < genStatus.length; t++) {
+            if (genStatus[t] == 1) {
+                genGasCost += genq.getGasCost(genOut[t]);
+            }
+        }
+        return genGasCost;
+    }
+
+    public static double getGenMOUCCost(final Generator gen, final int[] genStatus, final double[] genOut) {
+//        get f1
+
+        double f1 = getGenCost(gen,genStatus,genOut);
+//        if (genStatus[0] == 1) {
+//            f1 += gen.getGenCost(genOut[0]);
+//            if (gen.getInitialConditionHour() <= 0) f1 += gen.getStartupCost();
+//        }
+//        for (int t = 1; t < genStatus.length; t++) {
+//            if (genStatus[t] == 1) {
+//                f1 += gen.getGenCost(genOut[t]);
+//                if (genStatus[t - 1] == 0) f1 += gen.getStartupCost();
+//            }
+//        }
+//        get f2
+        double f2 = getGenGasCost(gen,genStatus,genOut);
+        return f1*f1+f2*f2;
+
     }
 
     public static double getGenStartupCost(final Generator gen, final int[] genStatus) {
@@ -58,6 +99,25 @@ public class Utility {
         }
 
         return genCost;
+    }
+
+    public static double getTotalMOUCCost(List<Generator> genList, int[][] gen_status, double[][] gen_out) {
+        double totalMOUCCost = 0;
+
+        int no_of_gen = genList.size();
+        int no_of_ti = gen_status[0].length;
+        int[] genStatus = new int[no_of_ti];
+        double[] genOut = new double[no_of_ti];
+        for (int i = 0; i < no_of_gen; i++) {
+            Generator generator = genList.get(i);
+            for (int t = 0; t < no_of_ti; t++) {
+                genStatus[t] = gen_status[i][t];
+                genOut[t] = gen_out[i][t];
+            }
+            totalMOUCCost += getGenMOUCCost(generator, genStatus, genOut);
+        }
+
+        return totalMOUCCost;
     }
 
     /**
@@ -199,7 +259,7 @@ public class Utility {
         if (name == null || name.length() == 0)
             con.setName(MessageFormat.format("constraint_auto_{0}", constraints.size()));
 
-        if( constraints.contains(con) ) return 0;
+        if (constraints.contains(con)) return 0;
 
         constraints.add(con);
         final Integer ti = con.getTimeInterval();

@@ -11,11 +11,11 @@ public class Calresult {
     private double[][] genOutput = null;
     private double bestObjValue=0;
 
-    public SCUCData getScucData() {
+    public SCUCData getSCUCData() {
         return scucData;
     }
 
-    public void setScucData(SCUCData scucData) {
+    public void setSCUCData(SCUCData scucData) {
         this.scucData = scucData;
     }
 

@@ -15,7 +15,7 @@ abstract public class EconomicDispatch1Hour implements EconomicDispatchable {
 
     private boolean respectStartupShutdownOutput = false;
 
-    int penaltyCost = 10000000;
+    int penaltyCost = Integer.MAX_VALUE;
     protected double[][] genOut = null;  // output for each generator at each time interval
 
     /**

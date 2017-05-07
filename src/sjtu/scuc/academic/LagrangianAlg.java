@@ -329,14 +329,11 @@ public class LagrangianAlg extends SCUCAlg {
             for (int i = 0; i < no_of_gen; i++) {
                 if (gen_status[i][t] == 1) dq_dlambda -= gen_dp_out[i][t];
             }
-
-            if (dq_dlambda > 0) lambda[t] += a_lambda_plus * dq_dlambda;
+//dq_dlambda=\sigma{loadDemand}-\sigma{gen_out}
+            if (dq_dlambda > 0) lambda[t] += a_lambda_plus * dq_dlambda;//if load balance is not met
             else lambda[t] += a_lambda_minus * dq_dlambda;
         }
 
-        for (int i = 0; i < no_of_gen; i++) {
-            final Generator gen = gens[i];
-        }
     }
 
     private void updateMu() {
@@ -348,10 +345,10 @@ public class LagrangianAlg extends SCUCAlg {
             for (int i = 0; i < gens.length; i++) {
                 if (gens[i].isONbyStatus(gen_dp_status[i][t])) dq_dmu -= gens[i].getMaxP();
             }
-
+//if the reserve constraint could never met
             if (dq_dmu > 0) mu[t] += a_mu_plus * dq_dmu;
             else mu[t] += a_mu_minus * dq_dmu;
-
+//the lagrangian multiplier corresponding to non-equal constraint must always be positive
             if (mu[t] < 0) mu[t] = 0;
         }
     }

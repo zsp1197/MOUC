@@ -52,7 +52,7 @@ public abstract class SCUCAlg implements Algorithmicable {
         Calresult result = null;
         try {
             result = solve();
-            result.setScucData(scucData);
+            result.setSCUCData(scucData);
 //            System.out.println("**************************************************************************************");
 //            System.out.println(Tools.getObjValue(result,scucData,1));
 //            System.out.println(Utility.getTotalActualCost(scucData.getGenList(), result.getGenStatus(), result.getGenOutput()));

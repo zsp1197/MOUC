@@ -31,6 +31,7 @@ public class SingleUnitDP {
 
 
         final int no_of_ti = lambda.length;
+//        min_on_time + min_dn_time
         final int no_of_status = gen.getNoOfStatus();
 
         int[][] preStatusIndex = new int[no_of_ti][no_of_status];

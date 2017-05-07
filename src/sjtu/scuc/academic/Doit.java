@@ -331,7 +331,7 @@ public class Doit {
             double[] lambda1 = calresult1.getLambda();
             double[] lambda2 = calresult2.getLambda();
             double thebase = 0;
-            final int no_of_ti = calresult1.getScucData().getTiNum();
+            final int no_of_ti = calresult1.getSCUCData().getTiNum();
             for (int i = 0; i < no_of_ti; i++) {
                 if (Math.abs(calresult1.getLambda()[i] - calresult2.getLambda()[i]) < 10) {
                     continue;

@@ -52,6 +52,10 @@ public class GeneratorWithQuadraticCostCurve extends Generator {
         return cost;
     }
 
+    public double getGasCost(final double p) {
+        return getGasa()*p*p+getGasb()*p+getGasc();
+    }
+
     /**
      * Suppose the generator is ON
      *
