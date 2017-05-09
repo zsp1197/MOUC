@@ -5,11 +5,39 @@ package sjtu.scuc.academic;
  */
 public class Calresult {
     private int[][] genY=null;
-
     private int targetflag=0;
     private int[][] genStatus = null;
     private double[][] genOutput = null;
     private double bestObjValue=0;
+
+    public Calresult() {
+
+    }
+
+    public Calresult(int[][] genStatus, double[][] genOutput, double bestObjValue, int[][] genY) {
+        this.genStatus=genStatus;
+        this.genOutput=genOutput;
+        this.genY=genY;
+        this.bestObjValue=bestObjValue;
+    }
+
+
+    public String getMode() {
+        return mode;
+    }
+
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    private String mode=null;
+    public Calresult(String mode, int[][] genStatus, double[][] genOutput, double bestObjValue,int[][] genY) {
+        this.mode=mode;
+        this.genStatus=genStatus;
+        this.genOutput=genOutput;
+        this.genY=genY;
+        this.bestObjValue=bestObjValue;
+    }
 
     public SCUCData getSCUCData() {
         return scucData;

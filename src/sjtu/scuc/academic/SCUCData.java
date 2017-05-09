@@ -44,6 +44,21 @@ public class SCUCData extends Throwable {
      * [gen_idx][ti]
      */
     private int[][] genConditionHours;
+    private int targetflag;
+
+    public String getMode() {
+        return mode;
+    }
+    public int getKsplit() {
+        return ksplit;
+    }
+
+    private int ksplit=20;
+    public void setMode(String mode) {
+        this.mode = mode;
+    }
+
+    private String mode="mo";
 
     public boolean isRamp() {
         return isRamp;
@@ -370,5 +385,9 @@ public class SCUCData extends Throwable {
                     , array[i].length - contingencyBranchIndex);
         }
         return array;
+    }
+
+    public int getTargetflag() {
+        return targetflag;
     }
 }

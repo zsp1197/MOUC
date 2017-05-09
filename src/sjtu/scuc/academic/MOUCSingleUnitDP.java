@@ -176,9 +176,9 @@ public class MOUCSingleUnitDP {
 
     private void addObj(int no_of_ti, double[] lambda, double[] mu, GeneratorWithQuadraticCostCurve gen) {
         GRBQuadExpr expr = new GRBQuadExpr();
-//        expr.addTerm(1.0, f1, f1);
-//        expr.addTerm(1.0, f2, f2);
-        expr.addTerm(1.0, f1);
+        expr.addTerm(1.0, f1, f1);
+        expr.addTerm(1.0, f2, f2);
+//        expr.addTerm(1.0, f1);
         for (int t = 0; t < no_of_ti; t++) {
             expr.addTerm(-lambda[t], p[t]);
             expr.addTerm(-mu[t] * gen.getMaxP(), u[t]);

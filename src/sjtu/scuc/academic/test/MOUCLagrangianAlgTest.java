@@ -31,8 +31,8 @@ public class MOUCLagrangianAlgTest {
         int no_of_ti=scucData.getTotalLoad().length;
         double[] lambda=new double[no_of_ti];
         double[] mu=new double[no_of_ti];
-        Arrays.fill(lambda,99999999);
-        Arrays.fill(mu,99999999);
+        Arrays.fill(lambda,1);
+        Arrays.fill(mu,1);
         scucAlg.setLambda(lambda);
         scucAlg.setMu(mu);
 
@@ -40,7 +40,7 @@ public class MOUCLagrangianAlgTest {
         double[] totalload = scucData.getTotalLoad();
         double[] reserve = new double[totalload.length];
         for (int t = 0; t < totalload.length; t++) {
-            reserve[t] = 1.1 * totalload[t];
+            reserve[t] = 1.05 * totalload[t];
         }
         scucData.setReserve(reserve);
     }

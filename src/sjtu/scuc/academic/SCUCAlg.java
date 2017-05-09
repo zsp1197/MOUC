@@ -7,6 +7,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
 /**
  * Created by Zhai Shaopeng on 2017/5/4.
  * E-mail: zsp1197@sjtu.edu.cn
@@ -91,37 +92,7 @@ public abstract class SCUCAlg implements Algorithmicable {
     public Calresult solve() throws InfeasibleException {
         beforehand_process();
         Calresult result = null;
-        if (!isUseBenderDecomposition()) {
-            if (isRespectNetworkConstraints()) addNetworkConstraints();
-            if (isRespectContingency()) addContingencyConstraints();
-            result = callSolver("Whole_Model");
-        } else {
-            cur_iteration = 1;
-            while (true) {
-                String s = MessageFormat.format("BenderMaster{0}", cur_iteration);
-                callSolver(s);
-
-                List<LeqConstraint> normalNetworkCuts = new ArrayList<LeqConstraint>();
-                if (isRespectNetworkConstraints())
-                    checkNormalNetworkPowerflowConstraint(normalNetworkCuts, cur_iteration);
-
-                List<LeqConstraint> contingencyNetworkCuts = new ArrayList<LeqConstraint>();
-                if (isRespectContingency())
-                    checkContingencyNetworkPowerflowConstraint(contingencyNetworkCuts, cur_iteration);
-
-                List<LeqConstraint> allNetworkCuts = new ArrayList<LeqConstraint>(normalNetworkCuts.size()
-                        + contingencyNetworkCuts.size());
-                allNetworkCuts.addAll(normalNetworkCuts);
-                allNetworkCuts.addAll(contingencyNetworkCuts);
-
-                if (allNetworkCuts.size() == 0) break;
-                else addCuts(allNetworkCuts);
-
-                if (cur_iteration >= maxIteration) break;
-                cur_iteration++;
-            }
-        }
-
+        result = callSolver("Whole_Model");
         afterward_process();
         return result;
     }
