@@ -444,7 +444,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         }
     }
 
-    private void addObjFunction() throws IloException {
+    private void addObjFunction(){
         final int no_of_gen = scucData.getGenNum();
         final int no_of_ti = scucData.getTiNum();
         Generator[] gens = scucData.getGens();
@@ -459,10 +459,22 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             }
         }
         try {
-            gurobigo.setObjective(expr, GRB.MINIMIZE);
+            gurobigo.addConstr(expr,GRB.LESS_EQUAL,f1,null);
         } catch (GRBException e) {
             e.printStackTrace();
         }
+        GRBQuadExpr exprq = new GRBQuadExpr();
+        exprq.addTerm(1,f1,f1);
+        try {
+            gurobigo.setObjective(exprq, GRB.MINIMIZE);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+//        try {
+//            gurobigo.setObjective(expr, GRB.MINIMIZE);
+//        } catch (GRBException e) {
+//            e.printStackTrace();
+//        }
     }
 
 
