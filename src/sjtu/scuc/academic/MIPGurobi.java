@@ -13,7 +13,7 @@ import java.util.List;
  * Created by Zhai Shaopeng on 2017/5/9 16:54.
  * E-mail: zsp1197@163.com
  */
-public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
+public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
 
     private GRBEnv env;
     private GRBModel gurobigo;
@@ -41,7 +41,9 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
      * gen's shut down flag. shut down:1
      */
     private GRBVar[][] z;
-    private GRBVar[][] D;
+//    private GRBVar[][] D;
+    private GRBVar f1;
+    private GRBVar f2;
 
     private List<GRBVar[]> vList = new ArrayList<GRBVar[]>();
     private List<GRBVar[]> qList = new ArrayList<GRBVar[]>();
@@ -74,7 +76,6 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
         } else {
             addGenCostDef();
             addGasCostDef();
-            addNBIcons();
         }
 //        addGenCostDef2();
 //        addGenGasCostDef();
@@ -95,12 +96,58 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
         if (scucData.getTargetflag() != 3) {
             addObjFunction();
         } else if (scucData.getTargetflag() == 3) {
-            addObjFunctionNBI();
+            addMObj();
+//            addObjFunctionNBI();
         } else {
 
         }
 //        addObjFunctionwithsimplePlus();
 //        addObjFunctionPlus();
+    }
+
+    private void addMObj() {
+        final int no_of_gen = scucData.getGenNum();
+        final int no_of_ti = scucData.getTiNum();
+        Generator[] gens = scucData.getGens();
+        // objective funciton
+        GRBLinExpr expr = new GRBLinExpr();
+        for (int i = 0; i < no_of_gen; ++i) {
+            double startupCost = gens[i].getStartupCost();
+            for (int t = 0; t < no_of_ti; t++) {
+                expr.addTerm(1., c[t][i]);
+
+                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+            }
+        }
+        try {
+            gurobigo.addConstr(expr, GRB.LESS_EQUAL, f1, null);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+
+        expr = new GRBLinExpr();
+        for (int i = 0; i < no_of_gen; ++i) {
+            double startupCost = gens[i].getStartupCost();
+            for (int t = 0; t < no_of_ti; t++) {
+                expr.addTerm(1., cg[t][i]);
+            }
+        }
+        try {
+            gurobigo.addConstr(expr, GRB.LESS_EQUAL, f2, null);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+//        add onj
+        GRBQuadExpr exprq = new GRBQuadExpr();
+        double result1=Tools.getObjValue(scucData.getResult1(),scucData,1);
+        double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
+        exprq.addTerm(1/(result1*result1),f1,f1);
+        exprq.addTerm(1/(result2*result2), f2, f2);
+        try {
+            gurobigo.setObjective(exprq, GRB.MINIMIZE);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addObjFunctionNBI() throws IloException {
@@ -209,6 +256,7 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
         int[][] genY = new int[no_of_gen][no_of_ti];
         try {
             genOutput = new double[no_of_gen][no_of_ti];
+            gurobigo.update();
             gurobigo.optimize();
             for (int t = 0; t < no_of_ti; t++) {
                 for (int i = 0; i < no_of_gen; ++i) {
@@ -232,6 +280,7 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
         } catch (GRBException e) {
             e.printStackTrace();
         }
+        calresult.setTargetflag(scucData.getTargetflag());
         return calresult;
     }
 
@@ -272,6 +321,8 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
             env = new GRBEnv();
             gurobigo = new GRBModel(env);
 
+            f1=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f1");
+            f2=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f2");
 //        cplex.setParam(IloCplex.DouParam.MIP.tolerances.EpGap, gapTolerance);
 //        cplex.setParam(IloCplex.DoubleParam.EpGap, 0.03);
             final int no_of_gen = scucData.getGenNum();
@@ -291,8 +342,8 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
             String[][] yName = new String[no_of_ti][no_of_gen];
             z = new GRBVar[no_of_ti][no_of_gen];
             String[][] zName = new String[no_of_ti][no_of_gen];
-            D = new GRBVar[1][1];
-            String[][] DName = new String[1][1];
+//            D = new GRBVar[1][1];
+//            String[][] DName = new String[1][1];
             for (int t = 0; t < no_of_ti; t++) {
                 for (int i = 0; i < no_of_gen; i++) {
                     pName[t][i] = MessageFormat.format("p({0},{1})", t, i);
@@ -301,7 +352,7 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
                     cgName[t][i] = MessageFormat.format("cg({0},{1})", t, i);
                     yName[t][i] = MessageFormat.format("y({0},{1})", t, i);
                     zName[t][i] = MessageFormat.format("z({0},{1})", t, i);
-                    DName[0][0] = MessageFormat.format("D({0},{1})", 0, 0);
+//                    DName[0][0] = MessageFormat.format("D({0},{1})", 0, 0);
 
                     p[t][i] = gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, null);
                     u[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, null);
@@ -310,7 +361,7 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
                     y[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, null);
                     z[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, null);
                 }
-                D[0][0] = gurobigo.addVar(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, null);
+//                D[0][0] = gurobigo.addVar(-Double.MAX_VALUE, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, null);
             }
             // set u's value according to the initial condition hours and min_on/dn_time
             // define relation between p and u
@@ -319,12 +370,12 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
                 final double minP = gens[i].getMinP();
                 for (int t = 0; t < no_of_ti; t++) {
 //                    p[t][i] = gurobigo.addVar(0.0, maxP, 0.0, GRB.CONTINUOUS, null);
-                    if (gens[i].mustON(t)) {
-                        u[t][i] = gurobigo.addVar(1, 1, 0.0, GRB.BINARY, null);
-                    } else if (gens[i].mustOFF(t)) {
-                        u[t][i] = gurobigo.addVar(0, 0, 0.0, GRB.BINARY, null);
-                    }
-                    gurobigo.update();
+//                    下面这段注释完全不知道他想干嘛
+//                    if (gens[i].mustON(t)) {
+//                        u[t][i] = gurobigo.addVar(1, 1, 0.0, GRB.BINARY, null);
+//                    } else if (gens[i].mustOFF(t)) {
+//                        u[t][i] = gurobigo.addVar(0, 0, 0.0, GRB.BINARY, null);
+//                    }
                     GRBLinExpr expr = new GRBLinExpr();
                     expr.addTerm(1.0, p[t][i]);
                     expr.addTerm(-maxP, u[t][i]);
@@ -403,8 +454,8 @@ public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
             double startupCost = gens[i].getStartupCost();
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
-
-                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+                if(scucData.getTargetflag()!=2)
+                    if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
             }
         }
         try {

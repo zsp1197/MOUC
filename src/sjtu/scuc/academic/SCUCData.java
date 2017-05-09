@@ -45,8 +45,29 @@ public class SCUCData extends Throwable {
      */
     private int[][] genConditionHours;
 
+    public Calresult getResult1() {
+        return result1;
+    }
+
+    public void setResult1(Calresult result1) {
+        this.result1 = result1;
+    }
+
+    public Calresult getResult2() {
+        return result2;
+    }
+
+    public void setResult2(Calresult result2) {
+        this.result2 = result2;
+    }
+
+    Calresult result1=null;
+    Calresult result2=null;
     public void setTargetflag(int targetflag) {
         this.targetflag = targetflag;
+        if((targetflag==3)&&((result1==null)||(result2==null))){
+            throw new java.lang.Error("for multi-obj, result1 and result2 are required!");
+        }
     }
 
     private int targetflag;

@@ -20,7 +20,7 @@ public class Tools {
 //        return abs((c-aa)/(b-d));
     }
 
-    static double getObjValue(Calresult calresult, SCUCData scucData, int targetflag) {
+    public static double getObjValue(Calresult calresult, SCUCData scucData, int targetflag) {
         if (calresult.getTargetflag() != targetflag) {
 //            System.out.println("get fmax");
         }
