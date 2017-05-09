@@ -10,11 +10,10 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 /**
- * Created by Zhai Shaopeng on 2017/5/9 16:24.
+ * Created by Zhai Shaopeng on 2017/5/9 16:54.
  * E-mail: zsp1197@163.com
  */
-public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
-
+public class Dealwithit extends SCUCAlg implements EconomicDispatchable{
 
     private GRBEnv env;
     private GRBModel gurobigo;
@@ -105,40 +104,11 @@ public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
     }
 
     private void addObjFunctionNBI() throws IloException {
-        GRBLinExpr expr = new GRBLinExpr();
-        expr.addTerm(1., D[0][0]);
-        try {
-            gurobigo.setObjective(expr, GRB.MINIMIZE);
-        } catch (GRBException e) {
-            e.printStackTrace();
-        }
+
     }
 
     private void addNBIcons() throws IloException, GRBException {
-        final int no_of_gen = scucData.getGenNum();
-        final int no_of_ti = scucData.getTiNum();
-        GRBLinExpr expr = new GRBLinExpr();
-        expr = new GRBLinExpr();
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_gen; ++i) {
-                expr.addTerm(1.0, c[t][i]);
-            }
-        }
-        expr.addTerm(-1.0, D[0][0]);
-        gurobigo.addConstr(expr, GRB.EQUAL, scucData.getNbigo().getTargetpoint1(), null);
-//        cplex.addEq(expr, scucData.getNbigo().getTargetpoint1(), null);
-//        cplex.addEq(expr, scucData.getNbigo().getTargetpoint1(), MessageFormat.format("def_D_{0}_{1}", 0,0));
 
-        expr = new GRBLinExpr();
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_gen; ++i) {
-//                expr = cplex.linearNumExpr();
-                expr.addTerm(1.0, cg[t][i]);
-            }
-        }
-        expr.addTerm(-scucData.getNbigo().getHorisplice(), D[0][0]);
-        gurobigo.addConstr(expr, GRB.EQUAL, scucData.getNbigo().getTargetpoint2(), null);
-//        gurobigo.update();
     }
 
     private void addGasCostDef() throws IloException, GRBException {
@@ -194,7 +164,17 @@ public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
 
     @Override
     protected void beforehand_process() {
-
+        try {
+//            把p,c变为字符串
+            addVariables(false);
+            try {
+                addCommonConstraintsAndObj();
+            } catch (GRBException e) {
+                e.printStackTrace();
+            }
+        } catch (IloException e) {
+            log.error(e);
+        }
     }
 
     protected void afterward_process() {
@@ -216,7 +196,7 @@ public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
 
     @Override
     protected Calresult callSolver(String s) throws InfeasibleException {
-        return null;
+        return callSolver(s,scucData);
     }
 
     protected Calresult callSolver(final String s, SCUCData scucData) throws InfeasibleException {
@@ -338,7 +318,7 @@ public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
                 final double maxP = gens[i].getMaxP();
                 final double minP = gens[i].getMinP();
                 for (int t = 0; t < no_of_ti; t++) {
-                    p[t][i] = gurobigo.addVar(0.0, maxP, 0.0, GRB.CONTINUOUS, null);
+//                    p[t][i] = gurobigo.addVar(0.0, maxP, 0.0, GRB.CONTINUOUS, null);
                     if (gens[i].mustON(t)) {
                         u[t][i] = gurobigo.addVar(1, 1, 0.0, GRB.BINARY, null);
                     } else if (gens[i].mustOFF(t)) {
@@ -424,8 +404,7 @@ public class GurobiMip extends SCUCAlg implements EconomicDispatchable {
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
 
-                // startup cost
-//                if (startupCost != 0) expr.addTerm(y[t][i], startupCost);
+                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
             }
         }
         try {

@@ -44,6 +44,11 @@ public class SCUCData extends Throwable {
      * [gen_idx][ti]
      */
     private int[][] genConditionHours;
+
+    public void setTargetflag(int targetflag) {
+        this.targetflag = targetflag;
+    }
+
     private int targetflag;
 
     public String getMode() {

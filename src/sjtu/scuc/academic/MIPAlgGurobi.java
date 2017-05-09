@@ -324,7 +324,7 @@ public class MIPAlgGurobi extends SCUCAlg implements EconomicDispatchable {
             z = new GRBVar[no_of_ti][no_of_gen];
             for (int t = 0; t < no_of_ti; t++) {
                 for (int i = 0; i < no_of_gen; i++) {
-                    p[t][i] = gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, String.format("p%d_%d", t, i));
+//                    p[t][i] = gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, String.format("p%d_%d", t, i));
                     u[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, String.format("u%d_%d", t, i));
                     y[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, String.format("y%d_%d", t, i));
                     z[t][i] = gurobigo.addVar(0.0, 1, 0.0, GRB.BINARY, String.format("z%d_%d", t, i));
@@ -335,8 +335,8 @@ public class MIPAlgGurobi extends SCUCAlg implements EconomicDispatchable {
             // set u's value according to the initial condition hours and min_on/dn_time
             // define relation between p and u
             for (int i = 0; i < no_of_gen; i++) {
-                final double maxP = gens[i].getMaxP();
-                final double minP = gens[i].getMinP();
+                double maxP = gens[i].getMaxP();
+                double minP = gens[i].getMinP();
                 for (int t = 0; t < no_of_ti; t++) {
                     p[t][i] = gurobigo.addVar(0.0, maxP, 0.0, GRB.CONTINUOUS, String.format("p%d_%d", t, i));
 //                    没看懂
@@ -345,7 +345,6 @@ public class MIPAlgGurobi extends SCUCAlg implements EconomicDispatchable {
 //                    } else if (gens[i].mustOFF(t)) {
 //                        u[t][i] = gurobigo.addVar(0, 0, 0.0, GRB.BINARY, String.format("u%d_%d",t,i));
 //                    }
-                    gurobigo.update();
                     GRBLinExpr expr = new GRBLinExpr();
                     expr.addTerm(1.0, p[t][i]);
                     expr.addTerm(-maxP, u[t][i]);
@@ -354,7 +353,6 @@ public class MIPAlgGurobi extends SCUCAlg implements EconomicDispatchable {
                     expr.addTerm(1.0, p[t][i]);
                     expr.addTerm(-minP, u[t][i]);
                     gurobigo.addConstr(expr, GRB.GREATER_EQUAL, 0, null);
-                    gurobigo.update();
                 }
             }
 
