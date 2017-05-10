@@ -68,7 +68,49 @@ public class Tools {
         }
         return result;
     }
+    public static double getObjValue(int[][] genStatus,int[][] genY,double[][] genOutput, SCUCData scucData, int targetflag) {
 
+        double aConst = 0;
+        double aLinear = 0;
+        double aQuadratic = 0;
+        int no_of_gen = scucData.getGenNum();
+        int no_of_ti = scucData.getTiNum();
+        Generator[] gens = scucData.getGens();
+        double result = 0;
+        double p = 0;
+        for (int i = 0; i < no_of_gen; i++) {
+            GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) gens[i];
+            if(targetflag==2){
+                aConst = gen.getGasc();
+                aLinear = gen.getGasb();
+                aQuadratic = gen.getGasa();
+            }
+            else if(targetflag==1){
+                aConst = gen.getAConstant();
+                aLinear = gen.getALinear();
+                aQuadratic = gen.getAQuadratic();
+            }
+            double startCost = gen.getStartupCost();
+            if (targetflag == 1) {
+//            gen cost
+                for (int t = 0; t < no_of_ti; t++) {
+                    p = genOutput[i][t];
+//                    result=result+genStatus[i][t]*(aQuadratic*p*p+aLinear*p+aConst);
+//                    result=result+(aQuadratic*p*p+aLinear*p+genStatus[i][t]*aConst)+startCost*genY[i][t];
+                    result = result + genStatus[i][t] * (aQuadratic * p * p + aLinear * p + aConst) + startCost * genY[i][t];
+                }
+            }
+            //            gas cost
+            else if (targetflag==2){
+                for (int t = 0; t < no_of_ti; t++) {
+                    p=genOutput[i][t];
+//                    result=result+(aQuadratic*p*p+aLinear*p+genStatus[i][t]*aConst);
+                    result=result+genStatus[i][t]*(aQuadratic*p*p+aLinear*p+aConst);
+                }
+            }
+        }
+        return result;
+    }
 
     public static double[][] getpoints(double f1min, double f2min, double f1max, double f2max, int k) {
         double[][] points = new double[k][2];
