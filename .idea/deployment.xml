@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="server_FTP" uploadOnCheckin="f1e5930d-4058-4e47-a865-962b38d09253">
+    <serverData>
+      <paths name="server_FTP">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/MOUC" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myUploadOnCheckinName" value="server_FTP" />
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>
