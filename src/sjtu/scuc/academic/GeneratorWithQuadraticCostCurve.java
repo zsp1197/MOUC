@@ -1,10 +1,12 @@
 package sjtu.scuc.academic;
 
+import java.io.Serializable;
+
 /**
  * Created by Zhai Shaopeng on 2017/5/4.
  * E-mail: zsp1197@sjtu.edu.cn
  */
-public class GeneratorWithQuadraticCostCurve extends Generator {
+public class GeneratorWithQuadraticCostCurve extends Generator  implements Serializable {
 
     double b[]={0,0,0};
 

@@ -60,8 +60,11 @@ public class DifferentiationTest {
         Generator[] gens = scucData.getGens();
         GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) gens[i];
         while (devi.miss_Wrong(gen, result.getGenStatus(), result.getGenOutput(), i, t) == true) {
-            i += 1;
 //            寻找边际机组
+            i += 1;
+            if(i==scucData.getTiNum()){
+                throw new java.lang.Error("no margin unit at this time. change t!");
+            }
             gen = (GeneratorWithQuadraticCostCurve) gens[i];
         }
 

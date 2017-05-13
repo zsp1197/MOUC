@@ -61,6 +61,8 @@ public class SCUCData extends Throwable {
         this.result2 = result2;
     }
 
+//    Notice! the result12 here is modified as the bestObjValue is the average among all systems
+//    it's for normalization
     Calresult result1=null;
     Calresult result2=null;
     public void setTargetflag(int targetflag) {
@@ -132,6 +134,25 @@ public class SCUCData extends Throwable {
     final public static int FROMBUS_IDX = 1;
     final public static int TOBUS_IDX = 2;
     final public static int CAPACITY_IDX = 3;
+
+    public int getIndex() {
+        return index;
+    }
+
+    public void setIndex(int index) {
+        this.index = index;
+    }
+
+    int index=0;
+
+    public double getCapability(){
+        double capability=0;
+        Generator[] gens=getGens();
+        for (int i = 0; i < gens.length; i++) {
+            capability=capability+gens[i].getMaxP();
+        }
+        return capability;
+    }
 
     public double[] getTotalLoad() {
         return totalLoad;

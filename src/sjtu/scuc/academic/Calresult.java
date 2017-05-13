@@ -1,14 +1,22 @@
 package sjtu.scuc.academic;
 
+import java.io.Serializable;
+
 /**
  * Created by zhai on 2016/8/8.
  */
-public class Calresult {
+public class Calresult implements Serializable {
     private int[][] genY=null;
     private int targetflag=0;
     private int[][] genStatus = null;
     private double[][] genOutput = null;
+    private double lambda[]=null;
+    private double mu[]=null;
+
+    private SCUCData scucData;
+
     private double bestObjValue=0;
+
 
     public Calresult() {
 
@@ -21,16 +29,15 @@ public class Calresult {
         this.bestObjValue=bestObjValue;
     }
 
-
     public String getMode() {
         return mode;
     }
-
     public void setMode(String mode) {
         this.mode = mode;
     }
 
     private String mode=null;
+
     public Calresult(String mode, int[][] genStatus, double[][] genOutput, double bestObjValue,int[][] genY) {
         this.mode=mode;
         this.genStatus=genStatus;
@@ -42,12 +49,10 @@ public class Calresult {
     public SCUCData getSCUCData() {
         return scucData;
     }
-
     public void setSCUCData(SCUCData scucData) {
         this.scucData = scucData;
     }
 
-    private SCUCData scucData=new SCUCData();
     public void setGenY(int[][] genY) {
         this.genY = genY;
     }
@@ -98,9 +103,6 @@ public class Calresult {
     public void setMu(double[] mu) {
         this.mu = mu;
     }
-
-    private double lambda[]=null;
-    private double mu[]=null;
 
     public int getTargetflag() {
         return targetflag;

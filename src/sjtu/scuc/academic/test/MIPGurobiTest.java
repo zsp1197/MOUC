@@ -22,7 +22,7 @@ public class MIPGurobiTest {
         double[] totalload = scucData.getTotalLoad();
         double[] reserve = new double[totalload.length];
         for (int t = 0; t < totalload.length; t++) {
-            reserve[t] = 1.05 * totalload[t];
+            reserve[t] = 0.05 * totalload[t];
         }
         scucData.setReserve(reserve);
         scucData.setMode("f1");
