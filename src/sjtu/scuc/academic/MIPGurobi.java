@@ -139,6 +139,12 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         }
 //        add onj
         GRBQuadExpr exprq = new GRBQuadExpr();
+//        保证统一的归一化
+//        double result1=scucData.getResult1().getBestObjValue();
+//        double result2=scucData.getResult2().getBestObjValue();
+//        if((result1==0)||(result2==0)){
+//            throw new java.lang.Error("multi-obj haven't been configured!");
+//        }
         double result1=Tools.getObjValue(scucData.getResult1(),scucData,1);
         double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
         exprq.addTerm(1/(result1*result1),f1,f1);
@@ -320,7 +326,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         try {
             env = new GRBEnv();
             gurobigo = new GRBModel(env);
-
+            gurobigo.getEnv().set(GRB.IntParam.OutputFlag, 0);
             f1=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f1");
             f2=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f2");
 //        cplex.setParam(IloCplex.DouParam.MIP.tolerances.EpGap, gapTolerance);

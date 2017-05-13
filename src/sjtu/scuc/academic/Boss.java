@@ -33,7 +33,19 @@ public class Boss {
         this.bossMemory=new BossMemory();
         this.systems = systems;
         writeidx(systems);
+        checkNormalization();
         this.results = new Calresult[systems.size()];
+    }
+
+    private void checkNormalization() {
+        final int no_of_sys = systems.size();
+        double normalization=systems.get(0).getNormalization();
+        for (int si = 0; si < no_of_sys; si++) {
+            if(normalization!=systems.get(si).getNormalization()){
+                throw new java.lang.Error("normalizion error!");
+            }
+
+        }
     }
 
     public void boss_work() {
@@ -61,9 +73,11 @@ public class Boss {
 
     private boolean keeponWorking() {
         System.out.println("check!");
+        double normalization=systems.get(0).getNormalization();
+        normalization=1/(normalization*normalization);
         double[] a=bossMemory.get_cost_history();
         for (int i = 0; i < a.length; i++) {
-            System.out.print(Double.toString(a[i])+" ");
+            System.out.print(Double.toString(normalization*a[i])+" ");
         }
         System.out.println();
         return true;
@@ -153,17 +167,17 @@ public class Boss {
         }
         refineResult12_for_normalize();
     }
-
     private void refineResult12_for_normalize() {
         double f1=0;
         double f2=0;
+        double for_normalize=systems.get(0).getNormalization();
         final int no_of_sys = systems.size();
         for (int si = 0; si < no_of_sys; si++) {
             f1=f1+systems.get(si).getResult1().getBestObjValue();
             f2=f2+systems.get(si).getResult2().getBestObjValue();
         }
-        f1=f1/no_of_sys;
-        f2=f2/no_of_sys;
+        f1=for_normalize*f1/no_of_sys;
+        f2=for_normalize*f2/no_of_sys;
         for (int si = 0; si < no_of_sys; si++) {
             systems.get(si).getResult1().setBestObjValue(f1);
             systems.get(si).getResult2().setBestObjValue(f2);
@@ -236,106 +250,11 @@ public class Boss {
             e.printStackTrace();
         }
     }
-    public double[][][] solveTielines_cplex(double[][] deltaSysLoad, String mode) throws IloException {
-        IloCplex cplex;
-        IloNumVar[][][] x;
-        IloNumVar[][] f;
-        cplex = new IloCplex();
-        final int no_of_sys = systems.size();
-        final int no_of_ti = systems.get(0).getTiNum();
-        x = new IloNumVar[no_of_sys][no_of_sys][no_of_ti];
-        f = new IloNumVar[no_of_sys][no_of_ti];
-        //        1
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int t = 0; t < no_of_ti; t++) {
-//                        x[i][j][t] = model.addVar(-tielines.getTieMax()[i][j], tielines.getTieMax()[i][j], 0.0, GRB.CONTINUOUS, null);
-//                        x[i][j]=cplex.numVarArray(no_of_ti, -tielines.getTieMax()[i][j], tielines.getTieMax()[i][j], IloNumVarType.Float);
-                        x[i][j][t]=cplex.numVar( -tielines.getTieMax()[i][j], tielines.getTieMax()[i][j], IloNumVarType.Float);
-                        if(i==j){
-                            IloLinearNumExpr expr = cplex.linearNumExpr();
-                            expr.addTerm(x[i][j][t],1);
-                            cplex.addEq(expr,0);
-                        }
-                }
-            }
-        }
-//        2
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int t = 0; t < no_of_ti; t++) {
-                    IloLinearNumExpr expr = cplex.linearNumExpr();
-                    expr.addTerm(x[i][j][t],1);
-                    expr.addTerm(x[j][i][t],1);
-                    cplex.addEq(expr,0);
-//                    model.addConstr(expr, GRB.EQUAL, 0, null);
-                }
-            }
-        }
-//        3
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_sys; i++) {
-                IloLinearNumExpr expr = cplex.linearNumExpr();
-                for (int j = 0; j < no_of_sys; j++) {
-                    expr.addTerm(x[i][j][t],1);
-                }
-                cplex.addLe(expr,Math.abs(deltaSysLoad[i][t]), null);
-                cplex.addGe(expr,-Math.abs(deltaSysLoad[i][t]), null);
-//                model.addConstr(expr, GRB.GREATER_EQUAL, -Math.abs(deltaSysLoad[i][t]), null);
-//                model.addConstr(expr, GRB.LESS_EQUAL, Math.abs(deltaSysLoad[i][t]), null);
-            }
-        }
-//        obj
-        double[][] mprices=getMprices();
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_sys; i++) {
-//                f[i][t] = model.addVar(-MAX_VALUE, MAX_VALUE, 0, GRB.CONTINUOUS, null);
-                f[i][t]=cplex.numVar( -MAX_VALUE, MAX_VALUE, IloNumVarType.Float);
-                IloLinearNumExpr expr = cplex.linearNumExpr();
-                for (int j = 0; j < no_of_sys; j++) {
-                    expr.addTerm( x[i][j][t],mprices[i][t]);
-                }
-                cplex.addEq(expr,f[i][t]);
-//                model.addConstr(expr, GRB.EQUAL, f[i][t], null);
-            }
-        }
 
-        IloLinearNumExpr expr = cplex.linearNumExpr();
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_sys; i++) {
-                expr.addTerm(f[i][t],1);
-            }
-        }
-        if(mode=="min"){
-
-            cplex.addMinimize(expr, "cost");
-        }
-        else if(mode=="max"){
-            cplex.addMaximize(expr, "cost");
-        }
-        else {
-            throw new java.lang.Error("FUCK!");
-        }
-//        model.setObjective(expr, GRB.MINIMIZE);
-//        model.update();
-//        model.optimize();
-        cplex.solve();
-        double[][][] result = new double[no_of_sys][no_of_sys][no_of_ti];
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_sys; i++) {
-                for (int j = 0; j < no_of_sys; j++) {
-                    result[i][j][t] = cplex.getValue(x[i][j][t]);
-//                    result[i][j][t] = x[i][j][t].get(GRB.DoubleAttr.X);
-                }
-            }
-        }
-        System.out.println("计算结果是"+Double.toString(cplex.getBestObjValue()));
-        cplex.end();
-        return result;
-    }
     public double[][][] solveTielines(double[][] deltaSysLoad, String mode) throws GRBException {
         GRBEnv env = new GRBEnv();
         GRBModel model = new GRBModel(env);
+        model.getEnv().set(GRB.IntParam.OutputFlag, 0);
         final int no_of_sys = systems.size();
         final int no_of_ti = systems.get(0).getTiNum();
         GRBVar[][][] x = new GRBVar[no_of_sys][no_of_sys][no_of_ti];
@@ -435,7 +354,7 @@ public class Boss {
                     }
                 }
             }
-            System.out.println("计算结果是"+Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
+            System.out.println("联络线对应成本增加应该是负的："+Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
             model.dispose();
             env.dispose();
             return result;
@@ -446,119 +365,6 @@ public class Boss {
         }
     }
 
-    public double[][][] solveTielines_4test(double[][] deltaSysLoad, String mode) throws GRBException {
-        GRBEnv env = new GRBEnv();
-        GRBModel model = new GRBModel(env);
-        final int no_of_sys = systems.size();
-        final int no_of_ti = systems.get(0).getTiNum();
-        GRBVar[][][] x = new GRBVar[no_of_sys][no_of_sys][no_of_ti];
-        GRBVar[][] f = new GRBVar[no_of_sys][no_of_ti];
-//        1
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int t = 0; t < no_of_ti; t++) {
-                    if (i != j) {
-                        x[i][j][t] = model.addVar(-tielines.getTieMax()[i][j], tielines.getTieMax()[i][j], 0.0, GRB.CONTINUOUS, null);
-                    } else {
-                        x[i][j][t] = model.addVar(0, 0, 0.0, GRB.CONTINUOUS, null);
-                    }
-                }
-            }
-        }
-//        2
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int t = 0; t < no_of_ti; t++) {
-                    GRBLinExpr expr = new GRBLinExpr();
-                    expr.addTerm(1.0, x[i][j][t]);
-                    expr.addTerm(1.0, x[j][i][t]);
-                    model.addConstr(expr, GRB.EQUAL, 0, null);
-                }
-            }
-        }
-//        3
-        for (int t = 0; t < no_of_ti; t++) {
-            for (int i = 0; i < no_of_sys; i++) {
-                GRBLinExpr expr = new GRBLinExpr();
-                for (int j = 0; j < no_of_sys; j++) {
-                    expr.addTerm(1.0, x[i][j][t]);
-                }
-                model.addConstr(expr, GRB.GREATER_EQUAL, -Math.abs(deltaSysLoad[i][t]), null);
-                model.addConstr(expr, GRB.LESS_EQUAL, Math.abs(deltaSysLoad[i][t]), null);
-            }
-        }
-        if (mode == "initialize") {
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    f[i][t] = model.addVar(-MAX_VALUE, MAX_VALUE, 0, GRB.CONTINUOUS, null);
-                    GRBLinExpr expr = new GRBLinExpr();
-                    for (int j = 0; j < no_of_sys; j++) {
-                        expr.addTerm(1.0, x[i][j][t]);
-                    }
-                    model.addConstr(expr, GRB.EQUAL, f[i][t], null);
-                }
-            }
-            GRBQuadExpr exprq = new GRBQuadExpr();
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    exprq.addTerm(1, f[i][t], f[i][t]);
-                }
-            }
-            model.setObjective(exprq, GRB.MINIMIZE);
-            model.update();
-            model.optimize();
-            double[][][] result = new double[no_of_sys][no_of_sys][no_of_ti];
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    for (int j = 0; j < no_of_sys; j++) {
-                        result[i][j][t] = x[i][j][t].get(GRB.DoubleAttr.X);
-                    }
-                }
-            }
-            model.dispose();
-            env.dispose();
-            return result;
-        } else if (mode == "update") {
-            double[][] mprices=getMprices();
-            mpricess=mprices;
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    f[i][t] = model.addVar(-MAX_VALUE, MAX_VALUE, 0, GRB.CONTINUOUS, null);
-                    GRBLinExpr expr = new GRBLinExpr();
-                    for (int j = 0; j < no_of_sys; j++) {
-                        expr.addTerm(mprices[i][t], x[i][j][t]);
-                    }
-                    model.addConstr(expr, GRB.EQUAL, f[i][t], null);
-                }
-            }
-            GRBLinExpr expr = new GRBLinExpr();
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    expr.addTerm(1, f[i][t]);
-                }
-            }
-            model.setObjective(expr, GRB.MAXIMIZE);
-            model.update();
-            model.optimize();
-
-            double[][][] result = new double[no_of_sys][no_of_sys][no_of_ti];
-            for (int t = 0; t < no_of_ti; t++) {
-                for (int i = 0; i < no_of_sys; i++) {
-                    for (int j = 0; j < no_of_sys; j++) {
-                        result[i][j][t] = x[i][j][t].get(GRB.DoubleAttr.X);
-                    }
-                }
-            }
-            System.out.println("计算结果是"+Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
-            model.dispose();
-            env.dispose();
-            return result;
-        } else {
-            model.dispose();
-            env.dispose();
-            throw new java.lang.Error("mode is wrong!!");
-        }
-    }
     public Parameters getParameters() {
         return parameters;
     }

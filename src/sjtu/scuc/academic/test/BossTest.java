@@ -31,9 +31,12 @@ public class BossTest {
         SCUCData scucData36 = getSCUCData("UC-context36.xml");
         systems.add(scucData10);
         systems.add(scucData36);
+        for (int i = 0; i < 2; i++) {
+            systems.get(i).setNormalization(1e-6);
+        }
         setReserves();
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.005, 100);
+        Parameters parameters = new Parameters(10, 100, 0.01, 100);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
         no_of_sys = systems.size();
@@ -96,44 +99,6 @@ public class BossTest {
         double[][][] a=boss.solveTielines(deltaSysLoad,"update");
 
         System.out.println("实际的结果应该是："+Double.toString(wtobj(a)));
-        double[][][] b=boss.solveTielines_4test(deltaSysLoad,"update");
-        System.out.println("实际的结果应该是："+Double.toString(wtobj(b)));
-
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int k = 0; k < no_of_ti; k++) {
-                    assertTrue((a[i][j][k]==b[i][j][k]));
-                    if(i!=j){
-                        assertTrue((a[i][j][k]==20)||(a[i][j][k]==-20));
-                        assertTrue(a[i][j][k]==-a[j][i][k]);
-                        assertTrue(a[i][i][k]==0);
-                    }
-                }
-            }
-        }
-
-
-
-
-
-
-        double[][][] c = boss.solveTielines_cplex(deltaSysLoad, "min");
-        double[][][] d = boss.solveTielines_cplex(deltaSysLoad, "max");
-        System.out.println("实际的结果应该是：" + Double.toString(wtobj(c)));
-        System.out.println("实际的结果应该是：" + Double.toString(wtobj(d)));
-        for (int i = 0; i < no_of_sys; i++) {
-            for (int j = 0; j < no_of_sys; j++) {
-                for (int k = 0; k < no_of_ti; k++) {
-                    assertTrue((c[i][j][k] == d[i][j][k]));
-                    if (i != j) {
-                        assertTrue((c[i][j][k] == 20) || (d[i][j][k] == -20));
-                        assertTrue(c[i][j][k] == -c[j][i][k]);
-                        assertTrue(c[i][i][k] == 0);
-                    }
-                }
-            }
-        }
-        System.out.println();
     }
 
     private double wtobj(double[][][] x) {

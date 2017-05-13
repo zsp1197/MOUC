@@ -45,6 +45,16 @@ public class SCUCData extends Throwable {
      */
     private int[][] genConditionHours;
 
+    public double getNormalization() {
+        return normalization;
+    }
+
+    public void setNormalization(double normalization) {
+        this.normalization = normalization;
+    }
+
+    private double normalization=1e-6;
+
     public Calresult getResult1() {
         return result1;
     }
