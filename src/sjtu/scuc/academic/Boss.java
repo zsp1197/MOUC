@@ -19,7 +19,6 @@ import static java.lang.Double.MAX_VALUE;
  * E-mail: zsp1197@163.com
  */
 public class Boss {
-    double[][] mpricess;
     List<SCUCData> systems;
 
     Tielines tielines;
@@ -71,13 +70,12 @@ public class Boss {
         } while (keeponWorking());
     }
 
+
     private boolean keeponWorking() {
         System.out.println("check!");
-        double normalization=systems.get(0).getNormalization();
-        normalization=1/(normalization*normalization);
         double[] a=bossMemory.get_cost_history();
         for (int i = 0; i < a.length; i++) {
-            System.out.print(Double.toString(normalization*a[i])+" ");
+            System.out.print(Double.toString(a[i])+" ");
         }
         System.out.println();
         return true;
