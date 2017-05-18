@@ -21,6 +21,9 @@ public class GeneratorWithQuadraticCostCurve extends Generator  implements Seria
     public double getGasb(){
         return b[1];
     }
+    public void setGasb(double target){
+        b[1]=target;
+    }
     public double getGasc(){
         return b[0];
     }

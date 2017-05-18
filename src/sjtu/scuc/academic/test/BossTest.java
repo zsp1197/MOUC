@@ -3,9 +3,7 @@ package sjtu.scuc.academic.test;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import sjtu.scuc.academic.Boss;
-import sjtu.scuc.academic.Parameters;
-import sjtu.scuc.academic.SCUCData;
+import sjtu.scuc.academic.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,8 +19,6 @@ import static sjtu.scuc.academic.Doit.getSCUCData;
 public class BossTest {
     List<SCUCData> systems;
     Boss boss;
-    int no_of_sys;
-    int no_of_ti;
 
     @Before
     public void setUp() throws Exception {
@@ -31,20 +27,30 @@ public class BossTest {
         SCUCData scucData36 = getSCUCData("UC-context36.xml");
         systems.add(scucData10);
         systems.add(scucData36);
+        refineGascoefficents(systems);
         for (int i = 0; i < 2; i++) {
             systems.get(i).setNormalization(1e-6);
         }
         setReserves();
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.01, 100);
+        Parameters parameters = new Parameters(10, 30, 0.01, 100);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
-        no_of_sys = systems.size();
-        no_of_ti = systems.get(0).getTiNum();
+//        no_of_sys = systems.size();
+//        no_of_ti = systems.get(0).getTiNum();
+    }
+
+    private void refineGascoefficents(List<SCUCData> systems) {
+        for (SCUCData scucData:systems){
+            for (Generator temp:scucData.getGenList()){
+                GeneratorWithQuadraticCostCurve gen= (GeneratorWithQuadraticCostCurve) temp;
+                gen.setGasb(Math.abs(gen.getGasb()));
+            }
+        }
     }
 
     private void setReserves() {
-
+        int no_of_sys = systems.size();
         for (int si = 0; si < no_of_sys; si++) {
             SCUCData scucData = systems.get(si);
             double[] totalload = scucData.getTotalLoad();
@@ -82,24 +88,39 @@ public class BossTest {
 
     @Test
     public void boss_work() throws Exception {
+        long startTime=System.currentTimeMillis();   //获取开始时间
         boss.boss_work();
+        long endTime=System.currentTimeMillis(); //获取结束时间
+        System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
     }
+
 
     @Test
-    public void solveTielines() throws Exception {
-        double[][] deltaSysLoad = new double[no_of_sys][no_of_ti];
-        for (int i = 0; i < no_of_sys; i++) {
-            Arrays.fill(deltaSysLoad[i], 20);
-        }
-
-        boss.initializeTieline();
-        boss.refine_sysload_with_tieline();
-        boss.iwantMOUC();
-
-        double[][][] a=boss.solveTielines(deltaSysLoad,"update");
-
-        System.out.println("实际的结果应该是："+Double.toString(wtobj(a)));
+    public void boss_ANC() throws Exception {
+        long startTime=System.currentTimeMillis();   //获取开始时间
+        boss.boss_ANC();
+        System.out.println("ANC最终结果： "+Double.toString(boss.getAnc().get_total_MOUC_cost()));
+        long endTime=System.currentTimeMillis(); //获取结束时间
+        System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
     }
+
+
+
+//    @Test
+//    public void solveTielines() throws Exception {
+//        double[][] deltaSysLoad = new double[no_of_sys][no_of_ti];
+//        for (int i = 0; i < no_of_sys; i++) {
+//            Arrays.fill(deltaSysLoad[i], 20);
+//        }
+//
+//        boss.initializeTieline();
+//        boss.refine_sysload_with_tieline();
+//        boss.iwantMOUC();
+//
+//        double[][][] a=boss.solveTielines(deltaSysLoad,"update");
+//
+//        System.out.println("实际的结果应该是："+Double.toString(wtobj(a)));
+//    }
 
     private double wtobj(double[][][] x) {
         final int no_of_sys = boss.getSystems().size();

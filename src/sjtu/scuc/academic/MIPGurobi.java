@@ -2,8 +2,6 @@ package sjtu.scuc.academic;
 import gurobi.GRBEnv;
 import gurobi.GRBModel;
 import ilog.concert.IloException;
-//import ilog.concert.IloLinearNumExpr;
-//import ilog.cplex.IloCplex;
 import gurobi.*;
 
 import java.text.MessageFormat;
@@ -93,16 +91,71 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         addMinDnTimeConstraint();
 
 //        addUserDefinedLeqConstraint();
-        if (scucData.getTargetflag() != 3) {
+        if ((scucData.getTargetflag() == 1)||(scucData.getTargetflag() == 2)) {
             addObjFunction();
         } else if (scucData.getTargetflag() == 3) {
             addMObj();
 //            addObjFunctionNBI();
-        } else {
+        } else if (scucData.getTargetflag() == 4){
+//            意味着，这个多目标是为ANC而设，归一化部分改变策略！
+            addMObjANC();
+        }
+        else {
 
         }
 //        addObjFunctionwithsimplePlus();
 //        addObjFunctionPlus();
+    }
+
+    private void addMObjANC() {
+        final int no_of_gen = scucData.getGenNum();
+        final int no_of_ti = scucData.getTiNum();
+        Generator[] gens = scucData.getGens();
+        // objective funciton
+        GRBLinExpr expr = new GRBLinExpr();
+        for (int i = 0; i < no_of_gen; ++i) {
+            double startupCost = gens[i].getStartupCost();
+            for (int t = 0; t < no_of_ti; t++) {
+                expr.addTerm(1., c[t][i]);
+
+                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+            }
+        }
+        try {
+            gurobigo.addConstr(expr, GRB.LESS_EQUAL, f1, null);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+
+        expr = new GRBLinExpr();
+        for (int i = 0; i < no_of_gen; ++i) {
+            double startupCost = gens[i].getStartupCost();
+            for (int t = 0; t < no_of_ti; t++) {
+                expr.addTerm(1., cg[t][i]);
+            }
+        }
+        try {
+            gurobigo.addConstr(expr, GRB.LESS_EQUAL, f2, null);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
+//        add onj
+        GRBQuadExpr exprq = new GRBQuadExpr();
+//        保证统一的归一化
+        double result1=scucData.getResult1().getBestObjValue();
+        double result2=scucData.getResult2().getBestObjValue();
+//        if((result1==0)||(result2==0)){
+//            throw new java.lang.Error("multi-obj haven't been configured!");
+//        }
+//        double result1=Tools.getObjValue(scucData.getResult1(),scucData,1);
+//        double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
+        exprq.addTerm(1/(result1*result1),f1,f1);
+        exprq.addTerm(1/(result2*result2), f2, f2);
+        try {
+            gurobigo.setObjective(exprq, GRB.MINIMIZE);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
     }
 
     private void addMObj() {
@@ -200,7 +253,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
                     diff = 2 * aQuadratic * start + aLinear;
                     b = y - diff * start;
                     expr = new GRBLinExpr();
-                    if (scucData.getTargetflag() != 3) {
+                    if ((scucData.getTargetflag() == 1)||(scucData.getTargetflag() == 2)) {
                         expr.addTerm(-1.0, c[t][i]);
                     } else {
                         expr.addTerm(-1.0, cg[t][i]);
@@ -269,7 +322,6 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
                     genStatus[i][t] = (int) u[t][i].get(GRB.DoubleAttr.X);
                     genOutput[i][t] = p[t][i].get(GRB.DoubleAttr.X);
                     genY[i][t] = (int) y[t][i].get(GRB.DoubleAttr.X);
-
                     temp = temp + genOutput[i][t];
                 }
                 tempsum[t] = temp;
@@ -460,7 +512,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             double startupCost = gens[i].getStartupCost();
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
-                if(scucData.getTargetflag()!=2)
+                if(scucData.getTargetflag()==1)
                     if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
             }
         }

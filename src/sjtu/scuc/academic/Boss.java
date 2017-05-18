@@ -28,6 +28,10 @@ public class Boss {
     Calresult[] results;
 
     BossMemory bossMemory;
+
+    ANC anc;
+
+    boolean has_been_called=false;
     public Boss(List<SCUCData> systems) {
         this.bossMemory=new BossMemory();
         this.systems = systems;
@@ -35,7 +39,6 @@ public class Boss {
         checkNormalization();
         this.results = new Calresult[systems.size()];
     }
-
     private void checkNormalization() {
         final int no_of_sys = systems.size();
         double normalization=systems.get(0).getNormalization();
@@ -43,11 +46,15 @@ public class Boss {
             if(normalization!=systems.get(si).getNormalization()){
                 throw new java.lang.Error("normalizion error!");
             }
-
         }
     }
 
     public void boss_work() {
+        if(!has_been_called){
+            has_been_called=true;
+        }else {
+            throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
+        }
         parameters.print();
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
@@ -70,6 +77,16 @@ public class Boss {
         } while (keeponWorking());
     }
 
+    public void boss_ANC(){
+        if(!has_been_called){
+            has_been_called=true;
+        }else {
+            throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
+        }
+        iwantMOUC();
+        anc=new ANC(systems,tielines);
+        anc.anc_work();
+    }
 
     private boolean keeponWorking() {
         System.out.println("check!");
@@ -80,6 +97,7 @@ public class Boss {
         System.out.println();
         return true;
     }
+
 
     private void updateTielines() {
         final int no_of_ti = systems.get(0).getTiNum();
@@ -165,6 +183,7 @@ public class Boss {
         }
         refineResult12_for_normalize();
     }
+
     private void refineResult12_for_normalize() {
         double f1=0;
         double f2=0;
@@ -181,7 +200,6 @@ public class Boss {
             systems.get(si).getResult2().setBestObjValue(f2);
         }
     }
-
     private void writeidx(List<SCUCData> systems) {
         for (int i = 0; i < systems.size(); i++) {
             systems.get(i).setIndex(i);
@@ -299,6 +317,7 @@ public class Boss {
                     for (int j = 0; j < no_of_sys; j++) {
                         expr.addTerm(1.0, x[i][j][t]);
                     }
+                    expr.addConstant(deltaSysLoad[i][t]);
                     model.addConstr(expr, GRB.EQUAL, f[i][t], null);
                 }
             }
@@ -377,5 +396,9 @@ public class Boss {
 
     public Tielines getTielines() {
         return tielines;
+    }
+
+    public ANC getAnc() {
+        return anc;
     }
 }
