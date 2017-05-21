@@ -30,6 +30,7 @@ public class ANC {
         final int no_of_sys = systems.size();
         results = new Calresult[no_of_sys];
         bigSystem = integrate_sysmtems(systems);
+        bigSystem.setNomalize_coefficentes(systems.get(0).getNormalize_coefficentes());
         SCUCSolver scucSolver = new SCUCSolver();
         MIPGurobi scucAlg = new MIPGurobi();
         scucSolver.setScucAlg(scucAlg);
@@ -179,8 +180,6 @@ public class ANC {
                 genList.add(gen);
             }
         }
-        result.setResult1(systems.get(0).getResult1());
-        result.setResult2(systems.get(0).getResult2());
         result.setGenList(genList);
         result.setTotalLoad(totalload);
         result.setReserve(reserve);

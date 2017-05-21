@@ -18,7 +18,7 @@ public class MIPGurobiTest {
     Calresult result;
     @Before
     public void setUp() throws Exception {
-        scucData = getSCUCData("UC-context36.xml");
+        scucData = getSCUCData("UC-context10.xml");
 //        气体系数全变正
         for (Generator temp:scucData.getGenList()){
             GeneratorWithQuadraticCostCurve gen= (GeneratorWithQuadraticCostCurve) temp;
@@ -63,8 +63,7 @@ public class MIPGurobiTest {
         Calresult result1=scucSolver.optimize(scucData);
         scucData.setTargetflag(2);
         Calresult result2=scucSolver.optimize(scucData);
-        scucData.setResult1(result1);
-        scucData.setResult2(result2);
+        scucData.setNomalize_coefficentes(new double[]{1,1});
         scucData.setTargetflag(3);
         result=scucSolver.optimize(scucData);
     }

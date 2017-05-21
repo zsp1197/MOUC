@@ -18,6 +18,7 @@ public class ToolsTest {
     MIPGurobi scucAlg;
     SCUCSolver scucSolver;
     Calresult result;
+
     @Before
     public void setUp() throws Exception {
         scucData = getSCUCData("UC-context - Full.xml");
@@ -30,11 +31,11 @@ public class ToolsTest {
         scucData.setMode("f1");
         scucData.setTargetflag(1);
         scucSolver = new SCUCSolver();
-        scucAlg=new MIPGurobi();
+        scucAlg = new MIPGurobi();
 
         scucSolver.setScucAlg(scucAlg);
         scucData.setTargetflag(1);
-        result=scucSolver.optimize(scucData);
+        result = scucSolver.optimize(scucData);
     }
 
 
@@ -44,7 +45,19 @@ public class ToolsTest {
 
     @Test
     public void getObjValue() throws Exception {
-        Assert.assertEquals(Tools.getObjValue(result,scucData,1),Tools.getObjValue(result.getGenStatus(),result.getGenY(),result.getGenOutput(),scucData,1));
+        Assert.assertEquals(Tools.getObjValue(result, scucData, 1), Tools.getObjValue(result.getGenStatus(), result.getGenY(), result.getGenOutput(), scucData, 1));
+    }
+
+    @Test
+    public void deepcopy2D_DoubleArray() throws Exception {
+        double[][] target = new double[3][4];
+        double[][] result = Tools.deepcopy2D_DoubleArray(target);
+        target[1][2] = 3;
+        for (int i = 0; i < target.length; i++) {
+            for (int j = 0; j < target[0].length; j++) {
+                assertEquals(target[i][j],result[i][j],0);
+            }
+        }
     }
 
 }

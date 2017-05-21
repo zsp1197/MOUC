@@ -50,6 +50,7 @@ public class Boss implements Serializable {
         parameters.print();
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
+        iwantMOUC();
         if(gived_tielines==null){
             if(!has_been_called){
                 has_been_called=true;
@@ -61,22 +62,8 @@ public class Boss implements Serializable {
             this.tielines=gived_tielines;
         }
         refine_sysload_with_tieline();
-        iwantMOUC();
-        bossMemory.add_memory(results,tielines);
 //        主循环
         do {
-            System.out.println();
-            System.out.println("********************************************");
-//            打印边际电价
-            print_Mprices(0,1,"relationship");
-            updateTielines();
-//            显示联络线
-            tielines.print_tielines(0,1);
-            print_loads(0);
-            print_loads(1);
-            refine_sysload_with_tieline();
-            print_loads(0);
-            print_loads(1);
             for (int si = 0; si < no_of_sys; si++) {
                 SCUCSolver scucSolver = new SCUCSolver();
                 MIPGurobi scucAlg = new MIPGurobi();
@@ -84,7 +71,8 @@ public class Boss implements Serializable {
                 results[si] = scucSolver.optimize(systems.get(si));
             }
             bossMemory.add_memory(results,tielines);
-            System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            updateTielines();
+            refine_sysload_with_tieline();
             step++;
         } while (keeponWorking(step));
     }
@@ -106,11 +94,10 @@ public class Boss implements Serializable {
         final int from=0;
         final int to=1;
         System.out.println("结果变化：");
-//        double[] a=bossMemory.get_obj_history();
-        double[] a=bossMemory.get_normalized_MOUC_cost(systems);
-        for (int i = 0; i < a.length; i++) {
-            System.out.print(Double.toString(a[i])+" ");
-        }
+        double[] a=bossMemory.get_obj_history();
+        double[] b=bossMemory.get_normalized_MOUC_cost(systems);
+        Tools.print_double_array(a);
+        Tools.print_double_array(b);
         if(step>=parameters.getIters())
             return false;
         return true;
@@ -222,6 +209,8 @@ public class Boss implements Serializable {
     }
 
     public void iwantMOUC() {
+        double total_f1=0;
+        double total_f2=0;
         final int no_of_sys = systems.size();
         for (int si = 0; si < no_of_sys; si++) {
             SCUCSolver scucSolver = new SCUCSolver();
@@ -232,28 +221,16 @@ public class Boss implements Serializable {
             Calresult result1 = scucSolver.optimize(scucData);
             scucData.setTargetflag(2);
             Calresult result2 = scucSolver.optimize(scucData);
-            scucData.setResult1(result1);
-            scucData.setResult2(result2);
-            scucData.setTargetflag(3);
-            results[si] = scucSolver.optimize(scucData);
+            total_f1=total_f1+result1.getBestObjValue();
+            total_f2=total_f2+result2.getBestObjValue();
         }
-        refineResult12_for_normalize();
-    }
-
-    private void refineResult12_for_normalize() {
-        double f1=0;
-        double f2=0;
-        double for_normalize=systems.get(0).getNormalization();
-        final int no_of_sys = systems.size();
+        double[] normalization=new double[2];
+        normalization[0]=parameters.getNormalization()/(total_f1*total_f1);
+        normalization[1]=parameters.getNormalization()/(total_f2*total_f2);
+//        改变归一化系数
         for (int si = 0; si < no_of_sys; si++) {
-            f1=f1+systems.get(si).getResult1().getBestObjValue();
-            f2=f2+systems.get(si).getResult2().getBestObjValue();
-        }
-        f1=for_normalize*f1/no_of_sys;
-        f2=for_normalize*f2/no_of_sys;
-        for (int si = 0; si < no_of_sys; si++) {
-            systems.get(si).getResult1().setBestObjValue(f1);
-            systems.get(si).getResult2().setBestObjValue(f2);
+            systems.get(si).setNomalize_coefficentes(normalization);
+            systems.get(si).setTargetflag(3);
         }
     }
 

@@ -39,12 +39,13 @@ public class SCUCData extends Throwable {
 
     // output
 
+    private double[] nomalize_coefficentes;
+
     /**
      * [gen_idx][ti]
      * 1列代表发电机编号，2列代表对应编号发电机的状态
      */
     private int[][] genStatus;
-
     /**
      * [gen_idx][ti]
      */
@@ -59,37 +60,17 @@ public class SCUCData extends Throwable {
         return normalization;
     }
 
+
     public void setNormalization(double normalization) {
         this.normalization = normalization;
     }
 
     private double normalization=1e-6;
 
-    public Calresult getResult1() {
-        return result1;
-    }
-
-    public void setResult1(Calresult result1) {
-        this.result1 = result1;
-    }
-
-    public Calresult getResult2() {
-        return result2;
-    }
-
-    public void setResult2(Calresult result2) {
-        this.result2 = result2;
-    }
-
 //    Notice! the result12 here is modified as the bestObjValue is the average among all systems
-//    it's for normalization
-    Calresult result1=null;
-    Calresult result2=null;
+
     public void setTargetflag(int targetflag) {
         this.targetflag = targetflag;
-        if((targetflag==3)&&((result1==null)||(result2==null))){
-            throw new java.lang.Error("for multi-obj, result1 and result2 are required!");
-        }
     }
 
     private int targetflag;
@@ -97,15 +78,15 @@ public class SCUCData extends Throwable {
     public String getMode() {
         return mode;
     }
+
     public int getKsplit() {
         return ksplit;
     }
-
     private int ksplit=20;
+
     public void setMode(String mode) {
         this.mode = mode;
     }
-
     private String mode="mo";
 
     public boolean isRamp() {
@@ -117,8 +98,8 @@ public class SCUCData extends Throwable {
     }
 
     boolean isRamp=true;
-    double k;
 
+    double k;
     public double getBigger() {
         return bigger;
     }
@@ -136,6 +117,7 @@ public class SCUCData extends Throwable {
     }
 
     double bigger;
+
     private double objective;
     private List<Branch> branchList = new ArrayList<Branch>();
     private int refBusIdx;
@@ -148,13 +130,12 @@ public class SCUCData extends Throwable {
     private double[][] nodeBranchIncidenceArray = null;
     private int[][] nodeUnitIncidenceArray = null;
     private int[][] nodeLoadIncidenceArray = null;
-
     private double[][] branchDataArray = null;
+
     final public static int REACTANCE_IDX = 0;
     final public static int FROMBUS_IDX = 1;
     final public static int TOBUS_IDX = 2;
     final public static int CAPACITY_IDX = 3;
-
     public int getIndex() {
         return index;
     }
@@ -177,6 +158,7 @@ public class SCUCData extends Throwable {
     public double[] getTotalLoad() {
         return totalLoad;
     }
+
     //将本文中totalload设置为输入totalload
     public void setTotalLoad(double[] totalLoad) {
         if (totalLoad == null) return;
@@ -197,7 +179,6 @@ public class SCUCData extends Throwable {
         this.reserve = new double[len];
         System.arraycopy(reserve, 0, this.reserve, 0, len);
     }
-
     public List<LeqConstraint> getConstraints() {
         return constraints;
     }
@@ -242,10 +223,10 @@ public class SCUCData extends Throwable {
         return reserve;
     }
 
-
     public Map<Integer, List<LeqConstraint>> getTi_constraints_map() {
         return ti_constraints_map;
     }
+
 
     public int[][] getGenStatus() {
         return genStatus;
@@ -456,5 +437,14 @@ public class SCUCData extends Throwable {
 
     public int getTargetflag() {
         return targetflag;
+    }
+
+    //    it's for normalization
+    public double[] getNormalize_coefficentes() {
+        return nomalize_coefficentes;
+    }
+
+    public void setNomalize_coefficentes(double[] nomalize_coefficentes) {
+        this.nomalize_coefficentes = nomalize_coefficentes;
     }
 }

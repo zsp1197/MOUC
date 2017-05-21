@@ -115,8 +115,6 @@ public class DifferentiationTest {
         Calresult result1 = scucSolver.optimize(scucData);
         scucData.setTargetflag(2);
         Calresult result2 = scucSolver.optimize(scucData);
-        scucData.setResult1(result1);
-        scucData.setResult2(result2);
         scucData.setTargetflag(3);
         result = scucSolver.optimize(scucData);
 

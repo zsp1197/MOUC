@@ -72,9 +72,7 @@ public class Differentiation {
         } else if (calresult.getTargetflag() == 2) {
             f = f2;
         } else if ((calresult.getTargetflag() == 3)||(calresult.getTargetflag() == 4)) {
-            double result1 = scucData.getResult1().getBestObjValue();
-            double result2 = scucData.getResult2().getBestObjValue();
-            f = new DerivativeStructure(1 / (result1 * result1), f1.multiply(f1), 1 / (result2 * result2), f2.multiply(f2));
+            f = new DerivativeStructure(scucData.getNormalize_coefficentes()[0], f1.multiply(f1), scucData.getNormalize_coefficentes()[1], f2.multiply(f2));
         } else {
             throw new java.lang.Error("Targetflag is not right!");
         }

@@ -28,9 +28,6 @@ public class BossTest {
         systems.add(scucData10);
         systems.add(scucData36);
         refineGascoefficents(systems);
-        for (int i = 0; i < systems.size(); i++) {
-            systems.get(i).setNormalization(1e-6);
-        }
         setReserves();
         final int no_of_sys = systems.size();
         final int no_of_ti = systems.get(0).getTiNum();
@@ -38,7 +35,7 @@ public class BossTest {
             systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
         }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 30, 0.002, 20);
+        Parameters parameters = new Parameters(10, 30, 0.01, 10,1e6);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
     }
