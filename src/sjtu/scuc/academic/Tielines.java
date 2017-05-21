@@ -39,6 +39,18 @@ public class Tielines implements Serializable {
         return true;
     }
 
+    public void print_tielines(int from,int to){
+        final int no_of_sys=tielines[0].length;
+        final int no_of_ti=tielines[0][0].length;
+        double[] tieline=tielines[from][to];
+        System.out.println();
+        System.out.println("联络线：");
+        for (int t = 0; t < no_of_ti; t++) {
+            System.out.print(String.format("%.1f",tieline[t])+" ");
+        }
+        System.out.println();
+    }
+
     public double[][] getTieMax() {
         return tieMax;
     }

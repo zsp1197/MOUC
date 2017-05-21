@@ -1,4 +1,5 @@
 package sjtu.scuc.academic;
+
 import gurobi.GRBEnv;
 import gurobi.GRBModel;
 import ilog.concert.IloException;
@@ -7,11 +8,12 @@ import gurobi.*;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
+
 /**
  * Created by Zhai Shaopeng on 2017/5/9 16:54.
  * E-mail: zsp1197@163.com
  */
-public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
+public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
 
     private GRBEnv env;
     private GRBModel gurobigo;
@@ -39,7 +41,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
      * gen's shut down flag. shut down:1
      */
     private GRBVar[][] z;
-//    private GRBVar[][] D;
+    //    private GRBVar[][] D;
     private GRBVar f1;
     private GRBVar f2;
 
@@ -91,16 +93,15 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         addMinDnTimeConstraint();
 
 //        addUserDefinedLeqConstraint();
-        if ((scucData.getTargetflag() == 1)||(scucData.getTargetflag() == 2)) {
+        if ((scucData.getTargetflag() == 1) || (scucData.getTargetflag() == 2)) {
             addObjFunction();
         } else if (scucData.getTargetflag() == 3) {
             addMObj();
 //            addObjFunctionNBI();
-        } else if (scucData.getTargetflag() == 4){
+        } else if (scucData.getTargetflag() == 4) {
 //            意味着，这个多目标是为ANC而设，归一化部分改变策略！
             addMObjANC();
-        }
-        else {
+        } else {
 
         }
 //        addObjFunctionwithsimplePlus();
@@ -118,7 +119,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
 
-                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
         try {
@@ -142,15 +143,15 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
 //        add onj
         GRBQuadExpr exprq = new GRBQuadExpr();
 //        保证统一的归一化
-        double result1=scucData.getResult1().getBestObjValue();
-        double result2=scucData.getResult2().getBestObjValue();
+        double result1 = scucData.getResult1().getBestObjValue();
+        double result2 = scucData.getResult2().getBestObjValue();
 //        if((result1==0)||(result2==0)){
 //            throw new java.lang.Error("multi-obj haven't been configured!");
 //        }
 //        double result1=Tools.getObjValue(scucData.getResult1(),scucData,1);
 //        double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
-        exprq.addTerm(1/(result1*result1),f1,f1);
-        exprq.addTerm(1/(result2*result2), f2, f2);
+        exprq.addTerm(1 / (result1 * result1), f1, f1);
+        exprq.addTerm(1 / (result2 * result2), f2, f2);
         try {
             gurobigo.setObjective(exprq, GRB.MINIMIZE);
         } catch (GRBException e) {
@@ -169,7 +170,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
 
-                if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
         try {
@@ -198,10 +199,10 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
 //        if((result1==0)||(result2==0)){
 //            throw new java.lang.Error("multi-obj haven't been configured!");
 //        }
-        double result1=Tools.getObjValue(scucData.getResult1(),scucData,1);
-        double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
-        exprq.addTerm(1/(result1*result1),f1,f1);
-        exprq.addTerm(1/(result2*result2), f2, f2);
+        double result1 = Tools.getObjValue(scucData.getResult1(), scucData, 1);
+        double result2 = Tools.getObjValue(scucData.getResult2(), scucData, 2);
+        exprq.addTerm(1 / (result1 * result1), f1, f1);
+        exprq.addTerm(1 / (result2 * result2), f2, f2);
         try {
             gurobigo.setObjective(exprq, GRB.MINIMIZE);
         } catch (GRBException e) {
@@ -253,7 +254,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
                     diff = 2 * aQuadratic * start + aLinear;
                     b = y - diff * start;
                     expr = new GRBLinExpr();
-                    if ((scucData.getTargetflag() == 1)||(scucData.getTargetflag() == 2)) {
+                    if ((scucData.getTargetflag() == 1) || (scucData.getTargetflag() == 2)) {
                         expr.addTerm(-1.0, c[t][i]);
                     } else {
                         expr.addTerm(-1.0, cg[t][i]);
@@ -302,7 +303,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
 
     @Override
     protected Calresult callSolver(String s) throws InfeasibleException {
-        return callSolver(s,scucData);
+        return callSolver(s, scucData);
     }
 
     protected Calresult callSolver(final String s, SCUCData scucData) throws InfeasibleException {
@@ -379,8 +380,8 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             env = new GRBEnv();
             gurobigo = new GRBModel(env);
             gurobigo.getEnv().set(GRB.IntParam.OutputFlag, 0);
-            f1=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f1");
-            f2=gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f2");
+            f1 = gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f1");
+            f2 = gurobigo.addVar(0.0, Double.MAX_VALUE, 0.0, GRB.CONTINUOUS, "f2");
 //        cplex.setParam(IloCplex.DouParam.MIP.tolerances.EpGap, gapTolerance);
 //        cplex.setParam(IloCplex.DoubleParam.EpGap, 0.03);
             final int no_of_gen = scucData.getGenNum();
@@ -502,7 +503,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
         }
     }
 
-    private void addObjFunction(){
+    private void addObjFunction() {
         final int no_of_gen = scucData.getGenNum();
         final int no_of_ti = scucData.getTiNum();
         Generator[] gens = scucData.getGens();
@@ -512,27 +513,27 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable{
             double startupCost = gens[i].getStartupCost();
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
-                if(scucData.getTargetflag()==1)
-                    if (startupCost != 0) expr.addTerm(startupCost,y[t][i]);
+                if (scucData.getTargetflag() == 1)
+                    if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
-        try {
-            gurobigo.addConstr(expr,GRB.LESS_EQUAL,f1,null);
-        } catch (GRBException e) {
-            e.printStackTrace();
-        }
-        GRBQuadExpr exprq = new GRBQuadExpr();
-        exprq.addTerm(1,f1,f1);
-        try {
-            gurobigo.setObjective(exprq, GRB.MINIMIZE);
-        } catch (GRBException e) {
-            e.printStackTrace();
-        }
 //        try {
-//            gurobigo.setObjective(expr, GRB.MINIMIZE);
+//            gurobigo.addConstr(expr,GRB.LESS_EQUAL,f1,null);
 //        } catch (GRBException e) {
 //            e.printStackTrace();
 //        }
+//        GRBQuadExpr exprq = new GRBQuadExpr();
+//        exprq.addTerm(1,f1,f1);
+//        try {
+//            gurobigo.setObjective(exprq, GRB.MINIMIZE);
+//        } catch (GRBException e) {
+//            e.printStackTrace();
+//        }
+        try {
+            gurobigo.setObjective(expr, GRB.MINIMIZE);
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
     }
 
 

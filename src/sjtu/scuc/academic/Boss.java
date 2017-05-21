@@ -1,12 +1,8 @@
 package sjtu.scuc.academic;
 
 import gurobi.*;
-import ilog.concert.IloException;
-import ilog.concert.IloLinearNumExpr;
-import ilog.concert.IloNumVar;
-import ilog.concert.IloNumVarType;
-import ilog.cplex.IloCplex;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -18,7 +14,7 @@ import static java.lang.Double.MAX_VALUE;
  * Created by Zhai Shaopeng on 2017/5/10 17:11.
  * E-mail: zsp1197@163.com
  */
-public class Boss {
+public class Boss implements Serializable {
     List<SCUCData> systems;
 
     Tielines tielines;
@@ -49,23 +45,38 @@ public class Boss {
         }
     }
 
-    public void boss_work() {
-        if(!has_been_called){
-            has_been_called=true;
-        }else {
-            throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
-        }
+    public void boss_work(Tielines gived_tielines) {
+        int step=0;
         parameters.print();
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
-
-        initializeTieline();
+        if(gived_tielines==null){
+            if(!has_been_called){
+                has_been_called=true;
+            }else {
+                throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
+            }
+            initializeTieline();
+        }else {
+            this.tielines=gived_tielines;
+        }
         refine_sysload_with_tieline();
         iwantMOUC();
         bossMemory.add_memory(results,tielines);
+//        主循环
         do {
+            System.out.println();
+            System.out.println("********************************************");
+//            打印边际电价
+            print_Mprices(0,1,"relationship");
             updateTielines();
+//            显示联络线
+            tielines.print_tielines(0,1);
+            print_loads(0);
+            print_loads(1);
             refine_sysload_with_tieline();
+            print_loads(0);
+            print_loads(1);
             for (int si = 0; si < no_of_sys; si++) {
                 SCUCSolver scucSolver = new SCUCSolver();
                 MIPGurobi scucAlg = new MIPGurobi();
@@ -73,8 +84,9 @@ public class Boss {
                 results[si] = scucSolver.optimize(systems.get(si));
             }
             bossMemory.add_memory(results,tielines);
-
-        } while (keeponWorking());
+            System.out.println("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
+            step++;
+        } while (keeponWorking(step));
     }
 
     public void boss_ANC(){
@@ -88,16 +100,60 @@ public class Boss {
         anc.anc_work();
     }
 
-    private boolean keeponWorking() {
-        System.out.println("check!");
-        double[] a=bossMemory.get_cost_history();
+    private boolean keeponWorking(int step) {
+        final int no_of_ti = systems.get(0).getTiNum();
+        final int no_of_sys = systems.size();
+        final int from=0;
+        final int to=1;
+        System.out.println("结果变化：");
+//        double[] a=bossMemory.get_obj_history();
+        double[] a=bossMemory.get_normalized_MOUC_cost(systems);
         for (int i = 0; i < a.length; i++) {
             System.out.print(Double.toString(a[i])+" ");
         }
-        System.out.println();
+        if(step>=parameters.getIters())
+            return false;
         return true;
     }
 
+    private void print_Mprices(int from,int to,String mode){
+        final int no_of_ti = systems.get(0).getTiNum();
+        System.out.println("mps");
+        double[][] mps=getMprices();
+        if(mode=="value"){
+            for (int t = 0; t < no_of_ti; t++) {
+                System.out.print(String.format("%.2f",mps[from][t])+" ");
+            }
+            System.out.println();
+            for (int t = 0; t < no_of_ti; t++) {
+                System.out.print(String.format("%.2f",mps[to][t])+" ");
+            }
+            System.out.println();
+        }
+        else if(mode=="relationship"){
+            for (int t = 0; t < no_of_ti; t++) {
+                if (mps[from][t]-mps[to][t]>=0){
+                    System.out.print("+"+" ");
+                }else{
+                    System.out.print("-"+" ");
+                }
+            }
+            System.out.println();
+        }
+        else {
+            throw new java.lang.Error("undefined mode");
+        }
+    }
+
+    private void print_loads(int si){
+        final int no_of_ti = systems.get(0).getTiNum();
+        final double[] loads=systems.get(si).getTotalLoad();
+        System.out.println("系统"+String.format("%d",si)+"负荷");
+        for (int t = 0; t < no_of_ti; t++) {
+            System.out.print(String.format("%.2f",loads[t])+" ");
+        }
+        System.out.println();
+    }
 
     private void updateTielines() {
         final int no_of_ti = systems.get(0).getTiNum();
@@ -200,6 +256,7 @@ public class Boss {
             systems.get(si).getResult2().setBestObjValue(f2);
         }
     }
+
     private void writeidx(List<SCUCData> systems) {
         for (int i = 0; i < systems.size(); i++) {
             systems.get(i).setIndex(i);
@@ -219,7 +276,7 @@ public class Boss {
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
         for (int si = 0; si < no_of_sys; si++) {
-            double[] oriload = systems.get(si).getTotalLoad();
+            double[] oriload = systems.get(si).getOriTotalLoad();
             double[] load = new double[no_of_ti];
             Arrays.fill(load, 0);
             for (int t = 0; t < no_of_ti; t++) {

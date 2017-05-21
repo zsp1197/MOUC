@@ -5,6 +5,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.Math.abs;
@@ -72,6 +73,15 @@ public class Tools {
         }
         return result;
     }
+
+    public static void print_double_array(double[] array){
+        System.out.println();
+        for (int i = 0; i < array.length; i++) {
+            System.out.print(Double.toString(array[i])+" ");
+        }
+        System.out.println();
+    }
+
     public static double getObjValue(int[][] genStatus,int[][] genY,double[][] genOutput, SCUCData scucData, int targetflag) {
 
         double aConst = 0;
@@ -143,5 +153,17 @@ public class Tools {
             e.printStackTrace();
             return null;
         }
+    }
+
+    public static double[] deepcopyDoubleArray(double[] doubles) {
+        if (doubles == null) {
+            return null;
+        }
+
+        double[] result = new double[doubles.length];
+        result = Arrays.copyOf(doubles, doubles.length);
+        // For Java versions prior to Java 6 use the next:
+        // System.arraycopy(original[i], 0, result[i], 0, original[i].length);
+        return result;
     }
 }

@@ -5,7 +5,7 @@
       <paths name="server_FTP">
         <serverdata>
           <mappings>
-            <mapping deploy="/MOUC" local="$PROJECT_DIR$" web="/" />
+            <mapping deploy="/MOUC/src" local="$PROJECT_DIR$/src" web="/" />
           </mappings>
         </serverdata>
       </paths>

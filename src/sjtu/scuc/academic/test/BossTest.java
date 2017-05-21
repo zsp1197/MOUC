@@ -28,16 +28,19 @@ public class BossTest {
         systems.add(scucData10);
         systems.add(scucData36);
         refineGascoefficents(systems);
-        for (int i = 0; i < 2; i++) {
+        for (int i = 0; i < systems.size(); i++) {
             systems.get(i).setNormalization(1e-6);
         }
         setReserves();
+        final int no_of_sys = systems.size();
+        final int no_of_ti = systems.get(0).getTiNum();
+        for (int si = 0; si < no_of_sys; si++) {
+            systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
+        }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 30, 0.01, 100);
+        Parameters parameters = new Parameters(10, 30, 0.002, 20);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
-//        no_of_sys = systems.size();
-//        no_of_ti = systems.get(0).getTiNum();
     }
 
     private void refineGascoefficents(List<SCUCData> systems) {
@@ -67,6 +70,13 @@ public class BossTest {
     }
 
     @Test
+    public void boss_work_with_best_tieline(){
+        boss.boss_ANC();
+        System.out.println("ANC最终结果： "+Double.toString(boss.getAnc().get_total_MOUC_cost()));
+        boss.boss_work(boss.getTielines());
+    }
+
+    @Test
     public void initializeTieline() throws Exception {
         boss.initializeTieline();
     }
@@ -89,7 +99,7 @@ public class BossTest {
     @Test
     public void boss_work() throws Exception {
         long startTime=System.currentTimeMillis();   //获取开始时间
-        boss.boss_work();
+        boss.boss_work(null);
         long endTime=System.currentTimeMillis(); //获取结束时间
         System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
     }

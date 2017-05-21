@@ -13,20 +13,11 @@ import java.util.List;
  */
 public class Differentiation {
     SCUCData scucData;
-    double penalty = 99999999;
+    final double penalty = 99999999;
+    final double gap=10;
 
     public Differentiation(SCUCData scucData) {
         this.scucData = scucData;
-    }
-
-    public double getMpriceT(Calresult calresult, int t) {
-        List<Double> mprices = new ArrayList<Double>();
-        int no_of_ti = scucData.getTiNum();
-        int no_of_gen = scucData.getGenNum();
-        for (int i = 0; i < no_of_gen; i++) {
-            mprices.add(deviP(calresult, i, t, 1));
-        }
-        return Collections.min(mprices);
     }
 
     public double[] getMpriceTs(Calresult result) {
@@ -36,6 +27,17 @@ public class Differentiation {
             mprices[t] = getMpriceT(result, t);
         }
         return mprices;
+    }
+
+    public double getMpriceT(Calresult calresult, int t) {
+        List<Double> mprices = new ArrayList<Double>();
+        int no_of_ti = scucData.getTiNum();
+        int no_of_gen = scucData.getGenNum();
+        for (int i = 0; i < no_of_gen; i++) {
+                mprices.add(deviP(calresult, i, t, 1));
+        }
+
+        return Collections.min(mprices);
     }
 
     public double deviP(Calresult calresult, int i, int t, int order) {
@@ -69,7 +71,7 @@ public class Differentiation {
             f = f1;
         } else if (calresult.getTargetflag() == 2) {
             f = f2;
-        } else if (calresult.getTargetflag() == 3) {
+        } else if ((calresult.getTargetflag() == 3)||(calresult.getTargetflag() == 4)) {
             double result1 = scucData.getResult1().getBestObjValue();
             double result2 = scucData.getResult2().getBestObjValue();
             f = new DerivativeStructure(1 / (result1 * result1), f1.multiply(f1), 1 / (result2 * result2), f2.multiply(f2));
@@ -84,7 +86,7 @@ public class Differentiation {
         if (genStatus[i][t] == 0) {
             return true;
         }
-        if (gen.getMaxP() - genOutput[i][t] < 3) {
+        if (gen.getMaxP() - genOutput[i][t] < gap) {
             return true;
         }
         return false;

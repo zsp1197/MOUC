@@ -18,14 +18,18 @@ public class MIPGurobiTest {
     Calresult result;
     @Before
     public void setUp() throws Exception {
-        scucData = getSCUCData("UC-context - Full.xml");
+        scucData = getSCUCData("UC-context36.xml");
+//        气体系数全变正
+        for (Generator temp:scucData.getGenList()){
+            GeneratorWithQuadraticCostCurve gen= (GeneratorWithQuadraticCostCurve) temp;
+            gen.setGasb(Math.abs(gen.getGasb()));
+        }
         double[] totalload = scucData.getTotalLoad();
         double[] reserve = new double[totalload.length];
         for (int t = 0; t < totalload.length; t++) {
             reserve[t] = 0.05 * totalload[t];
         }
         scucData.setReserve(reserve);
-        scucData.setMode("f1");
         scucData.setTargetflag(1);
         scucSolver = new SCUCSolver();
         scucAlg=new MIPGurobi();
@@ -50,6 +54,7 @@ public class MIPGurobiTest {
     public void f2() throws Exception {
         scucData.setTargetflag(2);
         result=scucSolver.optimize(scucData);
+
     }
 
     @Test

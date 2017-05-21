@@ -19,6 +19,16 @@ public class SCUCData extends Throwable {
      * totalLoad need to be balanced
      */
     protected double[] totalLoad = null;
+
+    public double[] getOriTotalLoad() {
+        return oriTotalLoad;
+    }
+
+    public void setOriTotalLoad(double[] oriTotalLoad) {
+        this.oriTotalLoad = oriTotalLoad;
+    }
+
+    protected double[] oriTotalLoad = null;
     /**
      * generation reserve need to be reserved
      */

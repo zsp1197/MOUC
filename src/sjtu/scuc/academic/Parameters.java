@@ -1,9 +1,11 @@
 package sjtu.scuc.academic;
 
+import java.io.Serializable;
+
 /**
  * Created by Zhai Shaopeng on 2017/2/4.
  */
-public class Parameters {
+public class Parameters implements Serializable {
     double min_change_price;
 
     public double getMin_change_price() {
