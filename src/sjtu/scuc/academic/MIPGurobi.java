@@ -645,7 +645,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
                     expr.addTerm(gens[i].getMaxP(), u[t][i]);
                 }
                 try {
-                    gurobigo.addConstr(expr, GRB.GREATER_EQUAL, 1.05 * load[t], null);
+                    gurobigo.addConstr(expr, GRB.GREATER_EQUAL, reserve[t] +load[t], null);
                 } catch (GRBException e) {
                     e.printStackTrace();
                 }

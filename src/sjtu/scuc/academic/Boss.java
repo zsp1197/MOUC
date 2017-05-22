@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.List;
 
 import static java.lang.Double.MAX_VALUE;
+import static java.lang.Double.doubleToLongBits;
 
 /**
  * Created by Zhai Shaopeng on 2017/5/10 17:11.
@@ -27,39 +28,41 @@ public class Boss implements Serializable {
 
     ANC anc;
 
-    boolean has_been_called=false;
+    boolean has_been_called = false;
+
     public Boss(List<SCUCData> systems) {
-        this.bossMemory=new BossMemory();
+        this.bossMemory = new BossMemory();
         this.systems = systems;
         writeidx(systems);
         checkNormalization();
         this.results = new Calresult[systems.size()];
     }
+
     private void checkNormalization() {
         final int no_of_sys = systems.size();
-        double normalization=systems.get(0).getNormalization();
+        double normalization = systems.get(0).getNormalization();
         for (int si = 0; si < no_of_sys; si++) {
-            if(normalization!=systems.get(si).getNormalization()){
+            if (normalization != systems.get(si).getNormalization()) {
                 throw new java.lang.Error("normalizion error!");
             }
         }
     }
 
     public void boss_work(Tielines gived_tielines) {
-        int step=0;
+        int step = 0;
         parameters.print();
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
         iwantMOUC();
-        if(gived_tielines==null){
-            if(!has_been_called){
-                has_been_called=true;
-            }else {
+        if (gived_tielines == null) {
+            if (!has_been_called) {
+                has_been_called = true;
+            } else {
                 throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
             }
             initializeTieline();
-        }else {
-            this.tielines=gived_tielines;
+        } else {
+            this.tielines = gived_tielines;
         }
         refine_sysload_with_tieline();
 //        主循环
@@ -70,74 +73,72 @@ public class Boss implements Serializable {
                 scucSolver.setScucAlg(scucAlg);
                 results[si] = scucSolver.optimize(systems.get(si));
             }
-            bossMemory.add_memory(results,tielines);
+            bossMemory.add_memory(results, tielines);
             updateTielines();
             refine_sysload_with_tieline();
             step++;
         } while (keeponWorking(step));
     }
 
-    public void boss_ANC(){
-        if(!has_been_called){
-            has_been_called=true;
-        }else {
+    public void boss_ANC() {
+        if (!has_been_called) {
+            has_been_called = true;
+        } else {
             throw new java.lang.Error("boss_?? has been called! This function must be called firstly");
         }
         iwantMOUC();
-        anc=new ANC(systems,tielines);
+        anc = new ANC(systems, tielines);
         anc.anc_work();
     }
 
     private boolean keeponWorking(int step) {
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
-        final int from=0;
-        final int to=1;
+        final int from = 0;
+        final int to = 1;
         System.out.println("结果变化：");
-        double[] a=bossMemory.get_obj_history();
-        double[] b=bossMemory.get_normalized_MOUC_cost(systems);
+        double[] a = bossMemory.get_obj_history();
+        double[] b = bossMemory.get_normalized_MOUC_cost(systems);
         Tools.print_double_array(a);
         Tools.print_double_array(b);
-        if(step>=parameters.getIters())
+        if (step >= parameters.getIters())
             return false;
         return true;
     }
 
-    private void print_Mprices(int from,int to,String mode){
+    private void print_Mprices(int from, int to, String mode) {
         final int no_of_ti = systems.get(0).getTiNum();
         System.out.println("mps");
-        double[][] mps=getMprices();
-        if(mode=="value"){
+        double[][] mps = getMprices();
+        if (mode == "value") {
             for (int t = 0; t < no_of_ti; t++) {
-                System.out.print(String.format("%.2f",mps[from][t])+" ");
+                System.out.print(String.format("%.2f", mps[from][t]) + " ");
             }
             System.out.println();
             for (int t = 0; t < no_of_ti; t++) {
-                System.out.print(String.format("%.2f",mps[to][t])+" ");
+                System.out.print(String.format("%.2f", mps[to][t]) + " ");
             }
             System.out.println();
-        }
-        else if(mode=="relationship"){
+        } else if (mode == "relationship") {
             for (int t = 0; t < no_of_ti; t++) {
-                if (mps[from][t]-mps[to][t]>=0){
-                    System.out.print("+"+" ");
-                }else{
-                    System.out.print("-"+" ");
+                if (mps[from][t] - mps[to][t] >= 0) {
+                    System.out.print("+" + " ");
+                } else {
+                    System.out.print("-" + " ");
                 }
             }
             System.out.println();
-        }
-        else {
+        } else {
             throw new java.lang.Error("undefined mode");
         }
     }
 
-    private void print_loads(int si){
+    private void print_loads(int si) {
         final int no_of_ti = systems.get(0).getTiNum();
-        final double[] loads=systems.get(si).getTotalLoad();
-        System.out.println("系统"+String.format("%d",si)+"负荷");
+        final double[] loads = systems.get(si).getTotalLoad();
+        System.out.println("系统" + String.format("%d", si) + "负荷");
         for (int t = 0; t < no_of_ti; t++) {
-            System.out.print(String.format("%.2f",loads[t])+" ");
+            System.out.print(String.format("%.2f", loads[t]) + " ");
         }
         System.out.println();
     }
@@ -148,19 +149,19 @@ public class Boss implements Serializable {
         double[][] mprices = getMprices();
         double[][] deltaSysLoad = getMaxDelta(mprices);
         try {
-            tielines.deltaSetTielines(solveTielines(deltaSysLoad,"update"));
+            tielines.deltaSetTielines(solveTielines(deltaSysLoad, "update"));
         } catch (GRBException e) {
             e.printStackTrace();
         }
     }
 
-    public double[][] getMprices(){
+    public double[][] getMprices() {
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
         double[][] mprices = new double[no_of_sys][no_of_ti];
         for (int si = 0; si < no_of_sys; si++) {
             SCUCData scucData = systems.get(si);
-            if(scucData.getTargetflag()!=3){
+            if (scucData.getTargetflag() != 3) {
                 throw new java.lang.Error("targetFlag!=3? are u sure?");
             }
             Differentiation devi = new Differentiation(scucData);
@@ -189,10 +190,10 @@ public class Boss implements Serializable {
             if (i == si) {
 //            对角元素不能用
                 maxdeltas[i] = 0;
-            }else{
-                double a=Math.abs(mprices[si][t]);
-                double b=Math.abs(mprices[i][t]);
-                maxdeltas[i] = coefficence * systems.get(si).getTotalLoad()[t] * (a-b) / Math.max(a,b);
+            } else {
+                double a = Math.abs(mprices[si][t]);
+                double b = Math.abs(mprices[i][t]);
+                maxdeltas[i] = coefficence * systems.get(si).getTotalLoad()[t] * (a - b) / Math.max(a, b);
 //            maxdeltas[i] = coefficence * systems.get(si).getTotalLoad()[t] * ((mprices[si][t] - mprices[i][t]) / Math.max(mprices[si][t], mprices[i][t]));
                 maxdeltas[i] = Math.abs(maxdeltas[i]);
             }
@@ -209,8 +210,8 @@ public class Boss implements Serializable {
     }
 
     public void iwantMOUC() {
-        double total_f1=0;
-        double total_f2=0;
+        double total_f1 = 0;
+        double total_f2 = 0;
         final int no_of_sys = systems.size();
         for (int si = 0; si < no_of_sys; si++) {
             SCUCSolver scucSolver = new SCUCSolver();
@@ -221,12 +222,12 @@ public class Boss implements Serializable {
             Calresult result1 = scucSolver.optimize(scucData);
             scucData.setTargetflag(2);
             Calresult result2 = scucSolver.optimize(scucData);
-            total_f1=total_f1+result1.getBestObjValue();
-            total_f2=total_f2+result2.getBestObjValue();
+            total_f1 = total_f1 + result1.getBestObjValue();
+            total_f2 = total_f2 + result2.getBestObjValue();
         }
-        double[] normalization=new double[2];
-        normalization[0]=parameters.getNormalization()/(total_f1*total_f1);
-        normalization[1]=parameters.getNormalization()/(total_f2*total_f2);
+        double[] normalization = new double[2];
+        normalization[0] = parameters.getNormalization() / (total_f1 * total_f1);
+        normalization[1] = parameters.getNormalization() / (total_f2 * total_f2);
 //        改变归一化系数
         for (int si = 0; si < no_of_sys; si++) {
             systems.get(si).setNomalize_coefficentes(normalization);
@@ -343,6 +344,30 @@ public class Boss implements Serializable {
                 model.addConstr(expr, GRB.LESS_EQUAL, Math.abs(deltaSysLoad[i][t]), null);
             }
         }
+//        4
+        for (int i = 0; i < no_of_sys; i++) {
+            double[] meetReserve = new double[no_of_ti];
+            if (mode == "update") {
+                int size = bossMemory.getResults_history().size();
+                Calresult temp_result = bossMemory.getResults_history().get(size - 1)[i];
+                meetReserve = systems.get(i).get_max_delta_load(temp_result);
+                System.out.println();
+            } else if (mode == "initialize") {
+                for (int t = 0; t < no_of_ti; t++) {
+                    SCUCData temp_system = systems.get(i);
+                    meetReserve[t] = temp_system.getCapability() - temp_system.getTotalLoad()[t] - temp_system.getReserve()[t];
+                }
+            }
+            for (int t = 0; t < no_of_ti; t++) {
+                GRBLinExpr expr = new GRBLinExpr();
+                for (int j = 0; j < no_of_sys; j++) {
+                    expr.addTerm(1.0, x[i][j][t]);
+                }
+                model.addConstr(expr, GRB.LESS_EQUAL, meetReserve[t], null);
+            }
+        }
+
+
         if (mode == "initialize") {
             for (int t = 0; t < no_of_ti; t++) {
                 for (int i = 0; i < no_of_sys; i++) {
@@ -376,7 +401,7 @@ public class Boss implements Serializable {
             env.dispose();
             return result;
         } else if (mode == "update") {
-            double[][] mprices=getMprices();
+            double[][] mprices = getMprices();
             for (int t = 0; t < no_of_ti; t++) {
                 for (int i = 0; i < no_of_sys; i++) {
                     f[i][t] = model.addVar(-MAX_VALUE, MAX_VALUE, 0, GRB.CONTINUOUS, null);
@@ -405,7 +430,7 @@ public class Boss implements Serializable {
                     }
                 }
             }
-            System.out.println("联络线对应成本增加应该是负的："+Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
+            System.out.println("联络线对应成本增加应该是负的：" + Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
             model.dispose();
             env.dispose();
             return result;

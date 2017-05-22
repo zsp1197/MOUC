@@ -84,6 +84,31 @@ public class SCUCData extends Throwable {
     }
     private int ksplit=20;
 
+    public double[] get_max_delta_load(Calresult calresult){
+        int[][] genStatus=calresult.getGenStatus();
+        double[][] genOutput=calresult.getGenOutput();
+        Generator[] gens=getGens();
+        double[] reserves=getReserve();
+        final int no_of_ti=reserves.length;
+        final int no_of_gen=gens.length;
+        double[] result=new double[no_of_ti];
+        for (int t = 0; t < no_of_ti; t++) {
+            double totalGen=0;
+            double totalMaxP=0;
+            for (int i = 0; i < no_of_gen; i++) {
+                if (genStatus[i][t]==1){
+                    totalGen=totalGen+genOutput[i][t];
+                }
+                totalMaxP=totalMaxP+gens[i].getMaxP();
+            }
+            result[t]=totalMaxP-totalGen-reserves[t];
+            if(result[t]<0){
+                throw new java.lang.Error("reserve could not be met");
+            }
+        }
+        return result;
+    }
+
     public void setMode(String mode) {
         this.mode = mode;
     }
