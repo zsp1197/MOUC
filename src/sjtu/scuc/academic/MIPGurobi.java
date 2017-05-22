@@ -335,6 +335,15 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             e.printStackTrace();
         }
         calresult.setTargetflag(scucData.getTargetflag());
+        if((scucData.getTargetflag()!=1)||(scucData.getTargetflag()!=2)){
+            try {
+                calresult.setF1_gurobi(f1.get(GRB.DoubleAttr.X));
+                calresult.setF2_gurobi(f2.get(GRB.DoubleAttr.X));
+            } catch (GRBException e) {
+                e.printStackTrace();
+            }
+        }
+
         return calresult;
     }
 

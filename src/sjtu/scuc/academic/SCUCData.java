@@ -103,7 +103,9 @@ public class SCUCData extends Throwable {
             }
             result[t]=totalMaxP-totalGen-reserves[t];
             if(result[t]<0){
-                throw new java.lang.Error("reserve could not be met");
+//                throw new java.lang.Error("reserve could not be met");
+                result[t]=0;
+                System.out.println("reserve could not be met");
             }
         }
         return result;

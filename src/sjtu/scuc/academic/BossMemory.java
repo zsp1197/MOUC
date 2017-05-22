@@ -14,6 +14,15 @@ public class BossMemory implements Serializable {
     List<Calresult[]> results_history;
     List<Tielines> tielines_history;
 
+    public double[] getNomalize_coefficentes() {
+        return nomalize_coefficentes;
+    }
+
+    public void setNomalize_coefficentes(double[] nomalize_coefficentes) {
+        this.nomalize_coefficentes = nomalize_coefficentes;
+    }
+
+    private double[] nomalize_coefficentes;
     public BossMemory() {
         step = -1;
         results_history = new ArrayList<Calresult[]>();

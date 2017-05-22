@@ -5,6 +5,9 @@ import org.junit.Before;
 import org.junit.Test;
 import sjtu.scuc.academic.*;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -35,15 +38,15 @@ public class BossTest {
             systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
         }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.01, 50,1e6);
+        Parameters parameters = new Parameters(10, 100, 0.01, 50, 1e6);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
     }
 
     private void refineGascoefficents(List<SCUCData> systems) {
-        for (SCUCData scucData:systems){
-            for (Generator temp:scucData.getGenList()){
-                GeneratorWithQuadraticCostCurve gen= (GeneratorWithQuadraticCostCurve) temp;
+        for (SCUCData scucData : systems) {
+            for (Generator temp : scucData.getGenList()) {
+                GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) temp;
                 gen.setGasb(Math.abs(gen.getGasb()));
             }
         }
@@ -67,10 +70,15 @@ public class BossTest {
     }
 
     @Test
-    public void boss_work_with_best_tieline(){
-        boss.boss_ANC();
-        System.out.println("ANC最终结果： "+Double.toString(boss.getAnc().get_total_MOUC_cost()));
-        boss.boss_work(boss.getTielines());
+    public void boss_work_with_best_tieline() {
+        try {
+            boss.boss_ANC();
+            System.out.println("ANC最终结果： " + Double.toString(boss.getAnc().get_total_MOUC_cost()));
+            boss.boss_work(boss.getTielines());
+        }catch (Exception e){
+            System.out.println("退出！");
+        }
+        serialize_bossMemory(boss.getBossMemory(),"boss_work_with_best_tieline.memory");
     }
 
     @Test
@@ -95,22 +103,26 @@ public class BossTest {
 
     @Test
     public void boss_work() throws Exception {
-        long startTime=System.currentTimeMillis();   //获取开始时间
-        boss.boss_work(null);
-        long endTime=System.currentTimeMillis(); //获取结束时间
-        System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
+        long startTime = System.currentTimeMillis();   //获取开始时间
+        try {
+            boss.boss_work(null);
+        }catch (Exception e){
+            System.out.println("退出！");
+        }
+        serialize_bossMemory(boss.getBossMemory(),"boss_work.memory");
+        long endTime = System.currentTimeMillis(); //获取结束时间
+        System.out.println("程序运行时间： " + (endTime - startTime) + "ms");
     }
 
 
     @Test
     public void boss_ANC() throws Exception {
-        long startTime=System.currentTimeMillis();   //获取开始时间
+        long startTime = System.currentTimeMillis();   //获取开始时间
         boss.boss_ANC();
-        System.out.println("ANC最终结果： "+Double.toString(boss.getAnc().get_total_MOUC_cost()));
-        long endTime=System.currentTimeMillis(); //获取结束时间
-        System.out.println("程序运行时间： "+(endTime-startTime)+"ms");
+        System.out.println("ANC最终结果： " + Double.toString(boss.getAnc().get_total_MOUC_cost()));
+        long endTime = System.currentTimeMillis(); //获取结束时间
+        System.out.println("程序运行时间： " + (endTime - startTime) + "ms");
     }
-
 
 
 //    @Test
@@ -128,6 +140,20 @@ public class BossTest {
 //
 //        System.out.println("实际的结果应该是："+Double.toString(wtobj(a)));
 //    }
+
+    private void serialize_bossMemory(BossMemory memories, String name) {
+        try {
+            FileOutputStream fileOut =
+                    new FileOutputStream(name);
+            ObjectOutputStream out = new ObjectOutputStream(fileOut);
+            out.writeObject(memories);
+            out.close();
+            fileOut.close();
+            System.out.printf("Serialized data is saved in " + name);
+        } catch (IOException i) {
+            i.printStackTrace();
+        }
+    }
 
     private double wtobj(double[][][] x) {
         final int no_of_sys = boss.getSystems().size();

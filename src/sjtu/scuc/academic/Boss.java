@@ -54,6 +54,7 @@ public class Boss implements Serializable {
         final int no_of_ti = systems.get(0).getTiNum();
         final int no_of_sys = systems.size();
         iwantMOUC();
+        bossMemory.setNomalize_coefficentes(systems.get(0).getNormalize_coefficentes());
         if (gived_tielines == null) {
             if (!has_been_called) {
                 has_been_called = true;
@@ -459,5 +460,9 @@ public class Boss implements Serializable {
 
     public ANC getAnc() {
         return anc;
+    }
+
+    public BossMemory getBossMemory() {
+        return bossMemory;
     }
 }

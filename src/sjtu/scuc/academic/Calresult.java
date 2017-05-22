@@ -17,6 +17,9 @@ public class Calresult implements Serializable {
 
     private double bestObjValue=0;
 
+    private double f1_gurobi;
+
+    private double f2_gurobi;
 
     public Calresult() {
 
@@ -32,10 +35,10 @@ public class Calresult implements Serializable {
     public String getMode() {
         return mode;
     }
+
     public void setMode(String mode) {
         this.mode = mode;
     }
-
     private String mode=null;
 
     public Calresult(String mode, int[][] genStatus, double[][] genOutput, double bestObjValue,int[][] genY) {
@@ -49,10 +52,10 @@ public class Calresult implements Serializable {
     public SCUCData getSCUCData() {
         return scucData;
     }
+
     public void setSCUCData(SCUCData scucData) {
         this.scucData = scucData;
     }
-
     public void setGenY(int[][] genY) {
         this.genY = genY;
     }
@@ -134,6 +137,22 @@ public class Calresult implements Serializable {
 
     public void setBestObjValue(double bestObjValue) {
         this.bestObjValue = bestObjValue;
+    }
+
+    public double getF1_gurobi() {
+        return f1_gurobi;
+    }
+
+    public void setF1_gurobi(double f1_gurobi) {
+        this.f1_gurobi = f1_gurobi;
+    }
+
+    public double getF2_gurobi() {
+        return f2_gurobi;
+    }
+
+    public void setF2_gurobi(double f2_gurobi) {
+        this.f2_gurobi = f2_gurobi;
     }
 
 }
