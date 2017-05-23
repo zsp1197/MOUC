@@ -74,7 +74,7 @@ public class Boss implements Serializable {
                 scucSolver.setScucAlg(scucAlg);
                 results[si] = scucSolver.optimize(systems.get(si));
             }
-            bossMemory.add_memory(results, tielines);
+            bossMemory.add_memory(results, tielines, getMprices());
             updateTielines();
             refine_sysload_with_tieline();
             step++;
@@ -438,7 +438,7 @@ public class Boss implements Serializable {
         } else {
             model.dispose();
             env.dispose();
-            throw new java.lang.Error("mode is wrong!!");
+            throw new java.lang.Error("mode is undefined!");
         }
     }
 

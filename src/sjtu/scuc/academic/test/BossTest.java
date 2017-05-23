@@ -38,7 +38,7 @@ public class BossTest {
             systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
         }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.01, 50, 1e6);
+        Parameters parameters = new Parameters(10, 100, 0.03, 10, 1e6);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
     }
@@ -76,6 +76,7 @@ public class BossTest {
             System.out.println("ANC最终结果： " + Double.toString(boss.getAnc().get_total_MOUC_cost()));
             boss.boss_work(boss.getTielines());
         }catch (Exception e){
+            e.printStackTrace();
             System.out.println("退出！");
         }
         serialize_bossMemory(boss.getBossMemory(),"boss_work_with_best_tieline.memory");
@@ -107,6 +108,7 @@ public class BossTest {
         try {
             boss.boss_work(null);
         }catch (Exception e){
+            e.printStackTrace();
             System.out.println("退出！");
         }
         serialize_bossMemory(boss.getBossMemory(),"boss_work.memory");

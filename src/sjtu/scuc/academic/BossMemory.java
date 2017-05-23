@@ -14,6 +14,14 @@ public class BossMemory implements Serializable {
     List<Calresult[]> results_history;
     List<Tielines> tielines_history;
 
+    public List<double[][]> getMp_history() {
+        return mp_history;
+    }
+
+    List<double[][]> mp_history;
+
+    private double[] nomalize_coefficentes;
+
     public double[] getNomalize_coefficentes() {
         return nomalize_coefficentes;
     }
@@ -21,15 +29,14 @@ public class BossMemory implements Serializable {
     public void setNomalize_coefficentes(double[] nomalize_coefficentes) {
         this.nomalize_coefficentes = nomalize_coefficentes;
     }
-
-    private double[] nomalize_coefficentes;
     public BossMemory() {
         step = -1;
         results_history = new ArrayList<Calresult[]>();
         tielines_history = new ArrayList<Tielines>();
+        mp_history = new ArrayList<double[][]>();
     }
 
-    public void add_memory(Calresult[] results, Tielines tielines) {
+    public void add_memory(Calresult[] results, Tielines tielines, double[][] mprices) {
         final int no_of_sys = results.length;
         Calresult[] temp_results = new Calresult[no_of_sys];
         for (int i = 0; i < no_of_sys; i++) {
@@ -40,6 +47,7 @@ public class BossMemory implements Serializable {
         results_history.add(temp_results);
 //        tielines_history.add(tielines);
         tielines_history.add((Tielines) Tools.deepClone(tielines));
+        mp_history.add(Tools.deepcopy2D_DoubleArray(mprices));
     }
 
     public double[] get_obj_history() {
