@@ -352,7 +352,6 @@ public class Boss implements Serializable {
                 int size = bossMemory.getResults_history().size();
                 Calresult temp_result = bossMemory.getResults_history().get(size - 1)[i];
                 meetReserve = systems.get(i).get_max_delta_load(temp_result);
-                System.out.println();
             } else if (mode == "initialize") {
                 for (int t = 0; t < no_of_ti; t++) {
                     SCUCData temp_system = systems.get(i);
@@ -432,6 +431,13 @@ public class Boss implements Serializable {
                 }
             }
             System.out.println("联络线对应成本增加应该是负的：" + Double.toString(model.get(GRB.DoubleAttr.ObjVal)));
+//            System.out.println("联络线：");
+//            Tools.print_double_array(this.tielines.getTielines()[0][1]);
+//            System.out.println("联络线升级：");
+//            Tools.print_double_array(result[0][1]);
+//            System.out.println("系统边际电价");
+//            Tools.print_double_array(mprices[0]);
+//            Tools.print_double_array(mprices[1]);
             model.dispose();
             env.dispose();
             return result;

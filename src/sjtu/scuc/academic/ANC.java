@@ -34,7 +34,7 @@ public class ANC {
         SCUCSolver scucSolver = new SCUCSolver();
         MIPGurobi scucAlg = new MIPGurobi();
         scucSolver.setScucAlg(scucAlg);
-        bigSystem.setTargetflag(4);
+        bigSystem.setTargetflag(3);
         first_result = scucSolver.optimize(bigSystem);
         tielines.setTielines(solveTieline(first_result, systems, tielines));
 

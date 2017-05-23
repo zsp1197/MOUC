@@ -38,7 +38,7 @@ public class BossTest {
             systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
         }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.03, 10, 1e6);
+        Parameters parameters = new Parameters(10, 100, 0.03, 50, 1e6);
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
     }

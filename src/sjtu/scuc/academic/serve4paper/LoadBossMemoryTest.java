@@ -16,7 +16,7 @@ public class LoadBossMemoryTest {
     LoadBossMemory lbm;
     @Before
     public void setUp() throws Exception {
-        String filepath = "C:\\Users\\zhai\\IdeaProjects\\MOUC\\boss_work.memory";
+        String filepath = "D:\\SJTU\\多目标优化项目\\论文\\写论文\\改啊改\\数据\\new 0.03\\boss_work.memory";
         lbm = new LoadBossMemory(filepath);
 
     }
@@ -27,7 +27,7 @@ public class LoadBossMemoryTest {
 
     @Test
     public void load() throws Exception {
-        String filepath = "C:\\Users\\zhai\\IdeaProjects\\MOUC\\boss_work.memory";
+        String filepath = "D:\\SJTU\\多目标优化项目\\论文\\写论文\\改啊改\\数据\\new 0.03\\boss_work.memory";
         BossMemory totest = lbm.load(filepath);
         Tools.print_double_array(totest.get_obj_history());
     }

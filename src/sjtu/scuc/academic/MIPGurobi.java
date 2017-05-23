@@ -189,7 +189,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
         } catch (GRBException e) {
             e.printStackTrace();
         }
-//        add onj
+//        add obj
         GRBQuadExpr exprq = new GRBQuadExpr();
 //        保证统一的归一化
 //        double result1=scucData.getResult1().getBestObjValue();
@@ -343,7 +343,12 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
                 e.printStackTrace();
             }
         }
-
+        gurobigo.dispose();
+        try {
+            env.dispose();
+        } catch (GRBException e) {
+            e.printStackTrace();
+        }
         return calresult;
     }
 
