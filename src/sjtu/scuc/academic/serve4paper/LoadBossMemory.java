@@ -109,6 +109,15 @@ public class LoadBossMemory {
                 e.printStackTrace();
             }
         }
+
+//        write coefficents
+        try {
+            writer = new FileWriter(path + "coefficients.csv");
+            doubles2file(writer,bm.getNomalize_coefficentes());
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private void doubles2file(FileWriter writer, double[] target) throws IOException {
