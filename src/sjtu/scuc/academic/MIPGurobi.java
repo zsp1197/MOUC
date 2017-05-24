@@ -66,19 +66,19 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
 
     private void addCommonConstraintsAndObj() throws IloException, GRBException {
 
-//        addGenCostDef();
         System.out.println("targetflag is " + scucData.getTargetflag());
         if (scucData.getTargetflag() == 1) {
-//            addGenCostDef2();
-            addGenCostDef();
+            addGenCostDef_no_linear();
+//            addGenCostDef();
         } else if (scucData.getTargetflag() == 2) {
-            addGasCostDef();
+            addGasCostDef_no_linear();
+//            addGasCostDef();
         } else {
-            addGenCostDef();
-            addGasCostDef();
+//            addGenCostDef();
+            addGenCostDef_no_linear();
+//            addGasCostDef();
+            addGasCostDef_no_linear();
         }
-//        addGenCostDef2();
-//        addGenGasCostDef();
         addStartupShutdownFlagDef();
 
         addLoadBalanceConstraint();
@@ -119,7 +119,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
 
-                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
+//                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
         try {
@@ -150,6 +150,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
 //        double result2=Tools.getObjValue(scucData.getResult2(),scucData,2);
         exprq.addTerm(scucData.getNormalize_coefficentes()[0], f1, f1);
         exprq.addTerm(scucData.getNormalize_coefficentes()[1], f2, f2);
+
         try {
             gurobigo.setObjective(exprq, GRB.MINIMIZE);
         } catch (GRBException e) {
@@ -168,7 +169,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
 
-                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
+//                if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
         try {
@@ -324,7 +325,17 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
                 temp = 0;
             }
             System.out.println("最终输出的结果是：" + gurobigo.get(GRB.DoubleAttr.ObjVal));
+            try{
+                System.out.println("系数：");
+                Tools.print_double_array(scucData.getNormalize_coefficentes());
+                System.out.println("f1:"+Double.toString(f1.get(GRB.DoubleAttr.X)));
+                System.out.println("f2:"+Double.toString(f2.get(GRB.DoubleAttr.X)));
+                System.out.println("结算结果实际算出来是：");
+                System.out.println(Double.toString(scucData.getNormalize_coefficentes()[0] * f1.get(GRB.DoubleAttr.X) * f1.get(GRB.DoubleAttr.X) + scucData.getNormalize_coefficentes()[1] * f2.get(GRB.DoubleAttr.X) * f2.get(GRB.DoubleAttr.X)));
+            }
+            catch (Exception e){
 
+            }
         } catch (GRBException e) {
             e.printStackTrace();
         }
@@ -335,7 +346,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             e.printStackTrace();
         }
         calresult.setTargetflag(scucData.getTargetflag());
-        if((scucData.getTargetflag()!=1)||(scucData.getTargetflag()!=2)){
+        if ((scucData.getTargetflag() != 1) || (scucData.getTargetflag() != 2)) {
             try {
                 calresult.setF1_gurobi(f1.get(GRB.DoubleAttr.X));
                 calresult.setF2_gurobi(f2.get(GRB.DoubleAttr.X));
@@ -522,22 +533,10 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             double startupCost = gens[i].getStartupCost();
             for (int t = 0; t < no_of_ti; t++) {
                 expr.addTerm(1., c[t][i]);
-                if (scucData.getTargetflag() == 1)
-                    if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
+//                if (scucData.getTargetflag() == 1)
+//                    if (startupCost != 0) expr.addTerm(startupCost, y[t][i]);
             }
         }
-//        try {
-//            gurobigo.addConstr(expr,GRB.LESS_EQUAL,f1,null);
-//        } catch (GRBException e) {
-//            e.printStackTrace();
-//        }
-//        GRBQuadExpr exprq = new GRBQuadExpr();
-//        exprq.addTerm(1,f1,f1);
-//        try {
-//            gurobigo.setObjective(exprq, GRB.MINIMIZE);
-//        } catch (GRBException e) {
-//            e.printStackTrace();
-//        }
         try {
             gurobigo.setObjective(expr, GRB.MINIMIZE);
         } catch (GRBException e) {
@@ -659,7 +658,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
                     expr.addTerm(gens[i].getMaxP(), u[t][i]);
                 }
                 try {
-                    gurobigo.addConstr(expr, GRB.GREATER_EQUAL, reserve[t] +load[t], null);
+                    gurobigo.addConstr(expr, GRB.GREATER_EQUAL, reserve[t] + load[t], null);
                 } catch (GRBException e) {
                     e.printStackTrace();
                 }
@@ -722,12 +721,66 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
                     expr.addTerm(diff, p[t][i]);
                     expr.addTerm(b, u[t][i]);
                     gurobigo.addConstr(expr, GRB.LESS_EQUAL, 0, null);
-//                    gurobigo.update();
 
                 }
             }
         }
     }
+
+    private void addGenCostDef_no_linear() {
+        final int no_of_gen = scucData.getGenNum();
+        final int no_of_ti = scucData.getTiNum();
+        Generator[] gens = scucData.getGens();
+        for (int i = 0; i < no_of_gen; i++) {
+            final GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) gens[i];
+            final double aConst = gen.getAConstant();
+            final double aLinear = gen.getALinear();
+            final double aQuadratic = gen.getAQuadratic();
+            for (int t = 0; t < no_of_ti; t++) {
+                GRBQuadExpr expqr = new GRBQuadExpr();
+                double startupCost = gens[i].getStartupCost();
+                if (startupCost != 0) expqr.addTerm(startupCost, y[t][i]);
+                expqr.addTerm(aQuadratic, p[t][i], p[t][i]);
+                expqr.addTerm(aLinear, p[t][i]);
+                expqr.addTerm(aConst, u[t][i]);
+                try {
+                    gurobigo.addQConstr(expqr,GRB.LESS_EQUAL,c[t][i],null);
+                } catch (GRBException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
+    private void addGasCostDef_no_linear() {
+        final int no_of_gen = scucData.getGenNum();
+        final int no_of_ti = scucData.getTiNum();
+        Generator[] gens = scucData.getGens();
+        for (int i = 0; i < no_of_gen; i++) {
+            final GeneratorWithQuadraticCostCurve gen = (GeneratorWithQuadraticCostCurve) gens[i];
+            final double aConst = gen.getGasc();
+            final double aLinear = gen.getGasb();
+            final double aQuadratic = gen.getGasa();
+            for (int t = 0; t < no_of_ti; t++) {
+                GRBQuadExpr expqr = new GRBQuadExpr();
+                expqr.addTerm(aQuadratic, p[t][i], p[t][i]);
+                expqr.addTerm(aLinear, p[t][i]);
+                expqr.addTerm(aConst, u[t][i]);
+                try {
+                    if ((scucData.getTargetflag() == 1) || (scucData.getTargetflag() == 2)) {
+                        gurobigo.addQConstr(expqr,GRB.LESS_EQUAL,c[t][i],null);
+                    } else {
+                        gurobigo.addQConstr(expqr,GRB.LESS_EQUAL,cg[t][i],null);
+                    }
+                } catch (GRBException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        }
+    }
+
 
     private void addMinDnTimeConstraint() throws IloException, GRBException {
         final int no_of_gen = scucData.getGenNum();
@@ -854,7 +907,7 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
             log.error(e);
         }
 
-        callSolver("EconmicDispatch_FixedIntVar", scucData);
+        callSolver("EconmicDispatch_FixedIntVar", this.scucData);
 
         afterward_process();
     }

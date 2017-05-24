@@ -71,6 +71,27 @@ public class BossMemory implements Serializable {
             Calresult[] temp_results = results_history.get(i);
             for (int si = 0; si < no_of_sys; si++) {
                 result[i] = result[i] + Tools.getObjValue(temp_results[si], systems.get(si), targetflag);
+
+            }
+        }
+        return result;
+    }
+    public double[] get_single_cost_history(int targetflag) {
+        int no_of_history = results_history.size();
+        int no_of_sys = results_history.get(0).length;
+        double result[] = new double[no_of_history];
+        for (int i = 0; i < no_of_history; i++) {
+            Calresult[] temp_results = results_history.get(i);
+            for (int si = 0; si < no_of_sys; si++) {
+//                result[i] = result[i] + Tools.getObjValue(temp_results[si], systems.get(si), targetflag);
+                if (targetflag==1){
+                    result[i] = result[i] + temp_results[si].getF1_gurobi();
+                }else if(targetflag==2){
+                    result[i] = result[i] + temp_results[si].getF2_gurobi();
+                }
+                else {
+                    throw new java.lang.Error("undefined mode");
+                }
             }
         }
         return result;
@@ -80,8 +101,15 @@ public class BossMemory implements Serializable {
         int no_of_history = results_history.size();
         int no_of_sys = results_history.get(0).length;
         double[] result = new double[results_history.size()];
-        double[] true_f1 = get_single_cost_history(systems, 1);
-        double[] true_f2 = get_single_cost_history(systems, 2);
+        double[] true_f1 = get_single_cost_history(1);
+//        double[] true_f1 = get_single_cost_history(systems, 1);
+        double[] true_f2 = get_single_cost_history(2);
+//        double[] true_f2 = get_single_cost_history(systems, 2);
+        System.out.println("我算的f1/f2： ");
+        Tools.print_double_array(true_f1);
+        Tools.print_double_array(true_f2);
+        System.out.println("这里的系数：");
+        Tools.print_double_array(systems.get(0).getNormalize_coefficentes());
         for (int i = 0; i < no_of_history; i++) {
             result[i] = systems.get(0).getNormalize_coefficentes()[0] * true_f1[i] * true_f1[i] + systems.get(0).getNormalize_coefficentes()[1] * true_f2[i] * true_f2[i];
         }
