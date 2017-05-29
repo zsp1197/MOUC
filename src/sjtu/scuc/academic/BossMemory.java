@@ -51,6 +51,7 @@ public class BossMemory implements Serializable {
     }
 
     public double[] get_obj_history() {
+//        算错了！！！！wrong!!!!!
         int no_of_history = results_history.size();
         int no_of_sys = results_history.get(0).length;
         double result[] = new double[results_history.size()];
@@ -98,6 +99,7 @@ public class BossMemory implements Serializable {
     }
 
     public double[] get_normalized_MOUC_cost(List<SCUCData> systems) {
+//        这才是真正的计算结果
         int no_of_history = results_history.size();
         int no_of_sys = results_history.get(0).length;
         double[] result = new double[results_history.size()];

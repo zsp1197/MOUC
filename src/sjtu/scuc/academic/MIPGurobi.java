@@ -68,16 +68,16 @@ public class MIPGurobi extends SCUCAlg implements EconomicDispatchable {
 
         System.out.println("targetflag is " + scucData.getTargetflag());
         if (scucData.getTargetflag() == 1) {
-            addGenCostDef_no_linear();
-//            addGenCostDef();
+//            addGenCostDef_no_linear();
+            addGenCostDef();
         } else if (scucData.getTargetflag() == 2) {
-            addGasCostDef_no_linear();
-//            addGasCostDef();
+//            addGasCostDef_no_linear();
+            addGasCostDef();
         } else {
-//            addGenCostDef();
-            addGenCostDef_no_linear();
-//            addGasCostDef();
-            addGasCostDef_no_linear();
+            addGenCostDef();
+//            addGenCostDef_no_linear();
+            addGasCostDef();
+//            addGasCostDef_no_linear();
         }
         addStartupShutdownFlagDef();
 

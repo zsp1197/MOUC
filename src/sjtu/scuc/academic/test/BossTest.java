@@ -22,7 +22,7 @@ import static sjtu.scuc.academic.Doit.getSCUCData;
 public class BossTest {
     List<SCUCData> systems;
     Boss boss;
-
+    Parameters parameters;
     @Before
     public void setUp() throws Exception {
         systems = new ArrayList<SCUCData>();
@@ -38,7 +38,8 @@ public class BossTest {
             systems.get(si).setOriTotalLoad(Tools.deepcopyDoubleArray(systems.get(si).getTotalLoad()));
         }
         boss = new Boss(systems);
-        Parameters parameters = new Parameters(10, 100, 0.03, 15, 1e6);
+        Parameters parameters = new Parameters(10, 100, 0.006, 1, 1e6);
+        this.parameters=parameters;
         boss.setParameters(parameters);
         boss.setTieMax_with_love(parameters.getMaxTieline());
     }
@@ -79,7 +80,7 @@ public class BossTest {
             e.printStackTrace();
             System.out.println("退出！");
         }
-        serialize_bossMemory(boss.getBossMemory(),"boss_work_with_best_tieline.memory");
+        serialize_bossMemory(boss.getBossMemory(),String.valueOf(parameters.getCoefficient())+"_boss_work_with_best_tieline.memory");
     }
 
     @Test
@@ -111,7 +112,7 @@ public class BossTest {
             e.printStackTrace();
             System.out.println("退出！");
         }
-        serialize_bossMemory(boss.getBossMemory(),"boss_work.memory");
+        serialize_bossMemory(boss.getBossMemory(),String.valueOf(parameters.getCoefficient())+"_boss_work.memory");
         long endTime = System.currentTimeMillis(); //获取结束时间
         System.out.println("程序运行时间： " + (endTime - startTime) + "ms");
     }

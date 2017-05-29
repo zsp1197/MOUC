@@ -8,6 +8,8 @@ import java.io.Serializable;
 public class Parameters implements Serializable {
     double min_change_price;
 
+    double penalty=9999999;
+
     public double getNormalization() {
         return normalization;
     }
@@ -39,8 +41,8 @@ public class Parameters implements Serializable {
     }
 
     double maxTieline;
-    double coefficient;
 
+    double coefficient;
     public int getIters() {
         return iters;
     }
@@ -64,5 +66,9 @@ public class Parameters implements Serializable {
         System.out.println("coefficient " +coefficient);
         System.out.println("iters "+iters);
         System.out.println("maxTieline "+maxTieline);
+    }
+
+    public double getPenalty() {
+        return penalty;
     }
 }

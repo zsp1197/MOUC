@@ -51,10 +51,15 @@ public class ANC {
     public double get_total_MOUC_cost(){
         final int no_of_sys = systems.size();
         double result=0;
+        double f1=0;
+        double f2=0;
         for (int si = 0; si < no_of_sys; si++) {
             result=result+results[si].getBestObjValue();
+            f1=f1+Tools.getObjValue(results[si],systems.get(si),1);
+            f2=f2+Tools.getObjValue(results[si],systems.get(si),2);
         }
-        return result;
+        double[] coefficents=systems.get(0).getNormalize_coefficentes();
+        return coefficents[0]*f1*f1+coefficents[1]*f2*f2;
     }
 
     public void refine_sysload_with_tieline() {

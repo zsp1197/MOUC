@@ -165,8 +165,8 @@ public class Boss implements Serializable {
             if (scucData.getTargetflag() != 3) {
                 throw new java.lang.Error("targetFlag!=3? are u sure?");
             }
-            Differentiation devi = new Differentiation(scucData);
-            mprices[si] = devi.getMpriceTs(results[si]);
+            MarginPriceCal devi = new MarginPriceCal(systems,results,parameters);
+            mprices[si] = devi.getMpriceTs(si);
         }
         return mprices;
     }
