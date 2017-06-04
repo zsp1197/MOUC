@@ -46,6 +46,7 @@ public class ANC {
             scucSolver.setScucAlg(scucAlg);
             results[si] = scucSolver.optimize(systems.get(si));
         }
+
     }
 
     public double get_total_MOUC_cost(){

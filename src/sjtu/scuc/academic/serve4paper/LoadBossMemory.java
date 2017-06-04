@@ -1,14 +1,12 @@
 package sjtu.scuc.academic.serve4paper;
 
-import sjtu.scuc.academic.BossMemory;
-import sjtu.scuc.academic.Calresult;
-import sjtu.scuc.academic.Differentiation;
-import sjtu.scuc.academic.SCUCData;
+import sjtu.scuc.academic.*;
 
 import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.List;
 
 /**
  * Created by Zhai Shaopeng on 2017/5/23 12:38.
@@ -53,7 +51,7 @@ public class LoadBossMemory {
                 } else if (mode == "f2_ori") {
                     result[step] = result[step] + results[si].getF2_gurobi();
                 } else if (mode == "f") {
-                    result = bm.get_obj_history();
+                    result = this.get_true_MOUC_cost(bm.getNomalize_coefficentes());
                 } else {
                     throw new java.lang.Error("mode is undefined!");
                 }
@@ -118,6 +116,36 @@ public class LoadBossMemory {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+//        write tieline
+//        目前只处理一条联络线！！！！
+        List<Tielines> tielines_history=bm.getTielines_history();
+        try {
+            writer = new FileWriter(path + "tielines.csv");
+            for (int step = 0; step < no_of_steps; step++) {
+                double[][][] tielines=tielines_history.get(step).getTielines();
+                doubles2file(writer, tielines[0][1]);
+            }
+            writer.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private double[] get_true_MOUC_cost(double[] nomalize_coefficentes){
+        //        这才是真正的计算结果
+        List<Calresult[]> results_history=bm.getResults_history();
+        int no_of_history = results_history.size();
+        int no_of_sys = results_history.get(0).length;
+        double[] result = new double[results_history.size()];
+        double[] true_f1 = bm.get_single_cost_history(1);
+//        double[] true_f1 = get_single_cost_history(systems, 1);
+        double[] true_f2 = bm.get_single_cost_history(2);
+//        double[] true_f2 = get_single_cost_history(systems, 2);
+        for (int i = 0; i < no_of_history; i++) {
+            result[i] = nomalize_coefficentes[0] * true_f1[i] * true_f1[i] + nomalize_coefficentes[1] * true_f2[i] * true_f2[i];
+        }
+        return result;
     }
 
     private void doubles2file(FileWriter writer, double[] target) throws IOException {

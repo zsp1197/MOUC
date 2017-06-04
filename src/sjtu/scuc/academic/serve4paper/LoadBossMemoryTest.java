@@ -14,7 +14,7 @@ import static org.junit.Assert.*;
  */
 public class LoadBossMemoryTest {
     LoadBossMemory lbm;
-    String filepath = "D:\\SJTU\\多目标优化项目\\论文\\写论文\\改啊改\\数据\\非线性化\\0.03_boss_work.memorydetail";
+    String filepath = "D:\\SJTU\\多目标优化项目\\论文\\写论文\\改啊改\\数据\\非线性化\\0.005_boss_work_with_best_tieline.memorydetail";
 
 
     @Before
