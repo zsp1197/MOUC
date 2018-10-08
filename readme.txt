@@ -18,5 +18,4 @@ How to use:
    sigma_i a_i * p_i <= b  , \forany t
 6. double click "kcmd.bat", then input "run" in the command window, you will see the process information in the window, or you could check the scucAlg.log file to see them.
 
-Jiachun GUO
-April 23, 2007
+Shaopeng Zhai
